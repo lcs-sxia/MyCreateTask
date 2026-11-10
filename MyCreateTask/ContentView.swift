@@ -46,6 +46,7 @@ struct ContentView: View {
                 .buttonStyle(.borderedProminent)
             }
             .padding(40)
+            .navigationTitle("My Create Task")
         }
     }
 }

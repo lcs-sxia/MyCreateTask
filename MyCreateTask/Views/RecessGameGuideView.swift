@@ -6,37 +6,42 @@ struct RecessGameGuideView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel = RecessGameViewModel()
-    @State private var playerCountText: String = ""
+    @State private var playerCount = 3
 
     // MARK: - Computed properties
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Button("Home") {
-                dismiss()
-            }
-            .buttonStyle(.bordered)
+        let matchingGames = viewModel.findGamesForGroup(playerCount: playerCount)
 
-            Text("Recess Game Guide")
-                .font(.largeTitle)
-                .bold()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Button("Home", systemImage: "house") {
+                        dismiss()
+                    }
+                    .buttonStyle(.bordered)
+                    Spacer()
+                }
 
-            Text("Games for physical playground play")
-                .font(.title3)
-                .foregroundStyle(.secondary)
+                Text("Recess Game Guide")
+                    .font(.largeTitle)
+                    .bold()
 
-            TextField("Number of players", text: $playerCountText)
-                .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: 260)
+                Text("Games for physical playground play")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
 
-            if let playerCount = Int(playerCountText), playerCount > 0 {
-                let matchingGames = viewModel.findGamesForGroup(playerCount: playerCount)
+                Text("🏃 Physical Playground Game")
+                    .font(.headline)
+                    .foregroundStyle(.tint)
+
+                Stepper("Players: \(playerCount)", value: $playerCount, in: 1...10)
 
                 if matchingGames.isEmpty {
                     Text("No games match that group size.")
                         .foregroundStyle(.secondary)
                 } else {
-                    List(matchingGames) { game in
+                    ForEach(matchingGames) { game in
                         VStack(alignment: .leading, spacing: 4) {
                             Text(game.name)
                                 .font(.headline)
@@ -47,14 +52,10 @@ struct RecessGameGuideView: View {
                         .padding(.vertical, 4)
                     }
                 }
-            } else {
-                Text("Enter a positive number of players to see matching games.")
-                    .foregroundStyle(.secondary)
-            }
 
-            Spacer()
+                Spacer()
+            }
         }
-        .padding(24)
-        .frame(minWidth: 500, minHeight: 450)
+        .padding()
     }
 }

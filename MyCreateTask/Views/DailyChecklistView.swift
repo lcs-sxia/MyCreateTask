@@ -12,23 +12,27 @@ struct DailyChecklistView: View {
     // MARK: - Computed properties
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Button("Home") {
-                dismiss()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Button("Home", systemImage: "house") {
+                        dismiss()
+                    }
+                    .buttonStyle(.bordered)
+                    Spacer()
+                }
+
+                Text("Daily Checklist")
+                    .font(.largeTitle)
+                    .bold()
+
+                Toggle("Pack a lunch", isOn: $packedLunch)
+                Toggle("Bring water", isOn: $packedWater)
+                Toggle("Finish homework", isOn: $finishedHomework)
+
+                Spacer()
             }
-            .buttonStyle(.bordered)
-
-            Text("Daily Checklist")
-                .font(.largeTitle)
-                .bold()
-
-            Toggle("Pack a lunch", isOn: $packedLunch)
-            Toggle("Bring water", isOn: $packedWater)
-            Toggle("Finish homework", isOn: $finishedHomework)
-
-            Spacer()
         }
-        .padding(40)
-        .frame(minWidth: 400, minHeight: 350)
+        .padding()
     }
 }

@@ -14,26 +14,30 @@ struct DanceGamesView: View {
     // MARK: - Computed properties
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Button("Home") {
-                dismiss()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Button("Home", systemImage: "house") {
+                        dismiss()
+                    }
+                    .buttonStyle(.bordered)
+                    Spacer()
+                }
+
+                Text("Dance Games")
+                    .font(.largeTitle)
+                    .bold()
+
+                Text("Choose a movement game for a group.")
+                    .foregroundStyle(.secondary)
+
+                ForEach(danceGames, id: \.self) { danceGame in
+                    Label(danceGame, systemImage: "figure.dance")
+                }
+
+                Spacer()
             }
-            .buttonStyle(.bordered)
-
-            Text("Dance Games")
-                .font(.largeTitle)
-                .bold()
-
-            Text("Choose a movement game for a group.")
-                .foregroundStyle(.secondary)
-
-            List(danceGames, id: \.self) { danceGame in
-                Label(danceGame, systemImage: "figure.dance")
-            }
-
-            Spacer()
         }
-        .padding(24)
-        .frame(minWidth: 400, minHeight: 350)
+        .padding()
     }
 }
