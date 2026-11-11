@@ -5,9 +5,11 @@ struct LearningAssistantView: View {
     // MARK: - Stored properties
 
     @Environment(\.dismiss) private var dismiss
-    @State private var answer: String = ""
-    @State private var showingSafetyInspection: Bool = false
-    @State private var answerIsCorrect: Bool = false
+    @State private var userAnswer: String = ""
+    @State private var showDoubleCheckAlert: Bool = false
+    @State private var showResult: Bool = false
+    @State private var isCorrect: Bool = false
+    @State private var showHint: Bool = false
 
     // MARK: - Computed properties
 
@@ -33,51 +35,81 @@ struct LearningAssistantView: View {
                 Text("7 × 8 = ?")
                     .font(.system(size: 48))
 
-                TextField("Your answer", text: $answer)
+                TextField("Your answer", text: $userAnswer)
                     .textFieldStyle(.roundedBorder)
 
                 Button("Launch Rocket") {
-                    showingSafetyInspection = true
+                    showDoubleCheckAlert = true
                 }
                 .buttonStyle(.borderedProminent)
 
-                if answerIsCorrect {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("+10 Points")
-                            .font(.title)
-                            .bold()
-                            .foregroundStyle(.green)
+                if showResult {
+                    if isCorrect {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Perfect Launch! 🌌")
+                                .font(.title)
+                                .bold()
+                                .foregroundStyle(.green)
 
-                        Text("⭐ Star Badge")
-                            .font(.title2)
+                            Text("+10 Points 🪙")
+                                .font(.title2)
+
+                            Text("⭐ Star Badge Unlocked!")
+                                .font(.title2)
+                        }
+                        .padding()
+                        .background(.green.opacity(0.15))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Oops! Try Again!")
+                                .font(.title)
+                                .bold()
+                                .foregroundStyle(.orange)
+
+                            Button("[ 💡 Show Hint ]") {
+                                showHint.toggle()
+                            }
+                            .buttonStyle(.bordered)
+
+                            if showHint {
+                                Text("Hint: 7 x 8 means 7 added 8 times (56)")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding()
+                        .background(.orange.opacity(0.15))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
-                    .padding()
-                    .background(.green.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
                 Spacer()
             }
         }
         .padding()
-        .alert("Safety Inspection / Double-Check", isPresented: $showingSafetyInspection) {
-            Button("Confirm Answer") {
+        .alert("Safety Inspection", isPresented: $showDoubleCheckAlert) {
+            Button("Re-check", role: .cancel) {
+            }
+            Button("I'm Sure! Launch") {
                 checkAnswer()
             }
         } message: {
-            Text("Check your multiplication answer carefully before launching the rocket.")
+            Text("Safety Inspection: Did you double check your fuel calculation?")
         }
     }
 
     // MARK: - Functions
 
     private func checkAnswer() {
-        let trimmedAnswer: String = answer.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAnswer: String = userAnswer.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if let submittedAnswer = Int(trimmedAnswer) {
-            answerIsCorrect = submittedAnswer == 56
+            isCorrect = 7 * 8 == submittedAnswer
         } else {
-            answerIsCorrect = false
+            isCorrect = false
         }
+
+        showResult = true
+        showHint = false
     }
 }

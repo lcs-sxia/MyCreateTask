@@ -6,33 +6,7 @@ class RecessGameViewModel {
 
     // MARK: - Stored properties
 
-    let allRecessGames: [RecessGame] = [
-        RecessGame(
-            name: "Four Square",
-            minPlayers: 4,
-            equipment: "Four-square court and ball"
-        ),
-        RecessGame(
-            name: "Tag",
-            minPlayers: 2,
-            equipment: "Open playground space"
-        ),
-        RecessGame(
-            name: "Soccer",
-            minPlayers: 4,
-            equipment: "Ball and two goals"
-        ),
-        RecessGame(
-            name: "Jump Rope Challenge",
-            minPlayers: 1,
-            equipment: "Jump rope"
-        ),
-        RecessGame(
-            name: "Capture the Flag",
-            minPlayers: 6,
-            equipment: "Two flags and open playground space"
-        )
-    ]
+    let allRecessGames: [RecessGame] = RecessGame.sampleGames
 
     // MARK: - Functions
 
