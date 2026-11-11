@@ -4,26 +4,13 @@ struct DanceGamesView: View {
 
     // MARK: - Stored properties
 
-    @Environment(\.dismiss) private var dismiss
-    let danceGames: [String] = [
-        "Freeze Dance",
-        "Follow the Leader",
-        "Dance Copycat"
-    ]
+    @State private var viewModel = DanceGamesViewModel()
 
     // MARK: - Computed properties
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Button("Home", systemImage: "house") {
-                        dismiss()
-                    }
-                    .buttonStyle(.bordered)
-                    Spacer()
-                }
-
                 Text("Dance Games")
                     .font(.largeTitle)
                     .bold()
@@ -31,8 +18,18 @@ struct DanceGamesView: View {
                 Text("Choose a movement game for a group.")
                     .foregroundStyle(.secondary)
 
-                ForEach(danceGames, id: \.self) { danceGame in
-                    Label(danceGame, systemImage: "figure.dance")
+                ForEach(viewModel.games) { game in
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(game.name, systemImage: "figure.dance")
+                            .font(.headline)
+
+                        Text(game.summary)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(.quaternary)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
                 Spacer()

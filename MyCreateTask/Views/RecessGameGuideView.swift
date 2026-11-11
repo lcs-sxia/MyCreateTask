@@ -4,7 +4,6 @@ struct RecessGameGuideView: View {
 
     // MARK: - Stored properties
 
-    @Environment(\.dismiss) private var dismiss
     @State private var viewModel = RecessGameViewModel()
     @State private var playerCount = 3
 
@@ -15,14 +14,6 @@ struct RecessGameGuideView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Button("Home", systemImage: "house") {
-                        dismiss()
-                    }
-                    .buttonStyle(.bordered)
-                    Spacer()
-                }
-
                 Text("Recess Game Guide")
                     .font(.largeTitle)
                     .bold()
@@ -81,7 +72,6 @@ struct RecessGameDetailView: View {
 
     // MARK: - Stored properties
 
-    @Environment(\.dismiss) private var dismiss
     let game: RecessGame
 
     // MARK: - Computed properties
@@ -89,14 +79,6 @@ struct RecessGameDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Button("Back", systemImage: "chevron.left") {
-                        dismiss()
-                    }
-                    .buttonStyle(.bordered)
-                    Spacer()
-                }
-
                 Text(game.name)
                     .font(.largeTitle)
                     .bold()

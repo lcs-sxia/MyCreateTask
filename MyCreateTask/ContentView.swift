@@ -26,10 +26,10 @@ struct ContentView: View {
                         .bold()
 
                     LazyVGrid(
-                        columns: [
-                            GridItem(.flexible(), spacing: 16),
-                            GridItem(.flexible(), spacing: 16)
-                        ],
+                        columns: Array(
+                            repeating: GridItem(.flexible(), spacing: 16),
+                            count: 3
+                        ),
                         spacing: 16
                     ) {
                         NavigationLink {
@@ -62,9 +62,9 @@ struct ContentView: View {
                             dashboardCard(
                                 title: "Daily Checklist",
                                 subtitle: "Tasks & Reminders",
-                                icon: "checklist",
-                                backgroundColor: Color.blue.opacity(0.16),
-                                iconColor: .blue
+                                icon: "checkmark.square.fill",
+                                backgroundColor: Color.teal.opacity(0.16),
+                                iconColor: .teal
                             )
                         }
 
@@ -74,9 +74,9 @@ struct ContentView: View {
                             dashboardCard(
                                 title: "Dance Games",
                                 subtitle: "Movement & Fun",
-                                icon: "figure.dance",
-                                backgroundColor: Color.pink.opacity(0.16),
-                                iconColor: .pink
+                                icon: "figure.social.dance",
+                                backgroundColor: Color.purple.opacity(0.16),
+                                iconColor: .purple
                             )
                         }
 
@@ -87,8 +87,8 @@ struct ContentView: View {
                                 title: "Reading Helper",
                                 subtitle: "Stories & Vocabulary",
                                 icon: "book.fill",
-                                backgroundColor: Color.blue.opacity(0.16),
-                                iconColor: .blue
+                                backgroundColor: Color.orange.opacity(0.16),
+                                iconColor: .orange
                             )
                         }
                     }
@@ -174,9 +174,17 @@ struct ContentView: View {
         .background(backgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay {
+            Image(systemName: icon)
+                .font(.system(size: 112, weight: .bold))
+                .foregroundStyle(iconColor.opacity(0.12))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                .padding(.trailing, 12)
+                .clipped()
+
             RoundedRectangle(cornerRadius: 20)
                 .stroke(.white.opacity(0.7), lineWidth: 1)
         }
+        .contentShape(RoundedRectangle(cornerRadius: 20))
         .scaleEffect(hoveredCard == title ? 1.03 : 1.0)
         .shadow(
             color: .black.opacity(hoveredCard == title ? 0.14 : 0.06),

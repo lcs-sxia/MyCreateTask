@@ -4,30 +4,25 @@ struct ReadingHelperView: View {
 
     // MARK: - Stored properties
 
-    @Environment(\.dismiss) private var dismiss
-    @State private var readingText: String = ""
+    @State private var viewModel = ReadingHelperViewModel()
 
     // MARK: - Computed properties
 
     var body: some View {
+        @Bindable var viewModel = viewModel
+
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Button("Home", systemImage: "house") {
-                        dismiss()
-                    }
-                    .buttonStyle(.bordered)
-                    Spacer()
-                }
-
                 Text("Reading Helper")
                     .font(.largeTitle)
                     .bold()
 
-                Text("Write a short summary or question about what you are reading.")
-                    .foregroundStyle(.secondary)
+                if let readingItem = viewModel.readingItems.first {
+                    Text(readingItem.summary)
+                        .foregroundStyle(.secondary)
+                }
 
-                TextEditor(text: $readingText)
+                TextEditor(text: $viewModel.readingText)
                     .font(.body)
                     .border(Color.secondary)
 

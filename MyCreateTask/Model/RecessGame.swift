@@ -41,6 +41,10 @@ struct RecessGame: Identifiable, Hashable {
         self.safety = safety
     }
 
+}
+
+extension RecessGame {
+
     // MARK: - Sample data
 
     static let sampleGames: [RecessGame] = [

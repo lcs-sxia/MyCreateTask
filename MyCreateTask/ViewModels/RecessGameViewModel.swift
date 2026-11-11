@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 @Observable
-class RecessGameViewModel {
+final class RecessGameViewModel {
 
     // MARK: - Stored properties
 
