@@ -7,9 +7,13 @@ final class LearningAssistantViewModel {
     // MARK: - Stored properties
 
     let allQuestions: [LearningQuestion] = LearningQuestion.sampleQuestions
+    let allStudyConcepts: [StudyConcept] = StudyConcept.sampleConcepts
 
     private(set) var score: Int = 0
     private(set) var currentQuestionIndices: [LearningSubject: Int] = [:]
+    private(set) var hasFailedCurrentQuestion: Bool = false
+    private(set) var showHint: Bool = false
+    private(set) var wrongSelectedOptions: Set<String> = []
 
     private var completedQuestionIDs: Set<UUID> = []
     private var selectedAnswers: [UUID: String] = [:]
@@ -36,6 +40,18 @@ final class LearningAssistantViewModel {
         return matchingQuestions
     }
 
+    func studyConcepts(for subject: LearningSubject) -> [StudyConcept] {
+        var matchingConcepts: [StudyConcept] = []
+
+        for concept in allStudyConcepts {
+            if concept.subject == subject {
+                matchingConcepts.append(concept)
+            }
+        }
+
+        return matchingConcepts
+    }
+
     func currentQuestion(for subject: LearningSubject) -> LearningQuestion? {
         let subjectQuestions: [LearningQuestion] = questions(for: subject)
         let currentIndex: Int = currentQuestionIndices[subject, default: 0]
@@ -57,9 +73,18 @@ final class LearningAssistantViewModel {
         let currentIndex: Int = currentQuestionIndices[subject, default: 0]
         let nextIndex: Int = (currentIndex + 1) % subjectQuestions.count
         currentQuestionIndices[subject] = nextIndex
+        hasFailedCurrentQuestion = false
+        showHint = false
+        wrongSelectedOptions = []
 
         let nextQuestionID: UUID = subjectQuestions[nextIndex].id
         selectedAnswers.removeValue(forKey: nextQuestionID)
+    }
+
+    func resetForSubjectChange() {
+        hasFailedCurrentQuestion = false
+        showHint = false
+        wrongSelectedOptions = []
     }
 
     func selectedAnswer(for question: LearningQuestion) -> String? {
@@ -70,14 +95,18 @@ final class LearningAssistantViewModel {
     func submit(answer: String, for question: LearningQuestion) -> Bool {
         selectedAnswers[question.id] = answer
 
-        let normalizedAnswer: String = normalize(answer, for: question)
-        let normalizedCorrectAnswer: String = normalize(
-            question.correctAnswer,
-            for: question
-        )
+        let normalizedAnswer: String = normalize(answer)
+        let normalizedCorrectAnswer: String = normalize(question.correctAnswer)
         let isCorrect: Bool = normalizedAnswer == normalizedCorrectAnswer
 
-        if isCorrect && !completedQuestionIDs.contains(question.id) {
+        if !isCorrect {
+            hasFailedCurrentQuestion = true
+            wrongSelectedOptions.insert(answer)
+        }
+
+        if isCorrect &&
+            !hasFailedCurrentQuestion &&
+            !completedQuestionIDs.contains(question.id) {
             completedQuestionIDs.insert(question.id)
             score += 10
         }
@@ -90,21 +119,14 @@ final class LearningAssistantViewModel {
             return false
         }
 
-        return normalize(answer, for: question) == normalize(
-            question.correctAnswer,
-            for: question
-        )
+        return normalize(answer) == normalize(question.correctAnswer)
     }
 
-    private func normalize(_ answer: String, for question: LearningQuestion) -> String {
-        let trimmedAnswer: String = answer.trimmingCharacters(in: .whitespacesAndNewlines)
+    func toggleHint() {
+        showHint.toggle()
+    }
 
-        if question.subject == .math {
-            return trimmedAnswer
-                .replacingOccurrences(of: ",", with: "")
-                .replacingOccurrences(of: " ", with: "")
-        }
-
-        return trimmedAnswer
+    private func normalize(_ answer: String) -> String {
+        answer.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
