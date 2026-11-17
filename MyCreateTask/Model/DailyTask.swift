@@ -22,8 +22,9 @@ extension DailyTask {
     // MARK: - Sample data
 
     static let sampleTasks: [DailyTask] = [
-        DailyTask(title: "Pack a lunch"),
-        DailyTask(title: "Bring water"),
-        DailyTask(title: "Finish homework")
+        DailyTask(title: "Complete Math Worksheet"),
+        DailyTask(title: "Read for 20 Minutes"),
+        DailyTask(title: "Organize Study Desk"),
+        DailyTask(title: "Pack Tomorrow's Backpack")
     ]
 }

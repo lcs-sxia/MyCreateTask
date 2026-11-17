@@ -9,10 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
 
-    // MARK: - Stored properties
-
-    @State private var hoveredCard: String?
-
     // MARK: - Computed properties
 
     var body: some View {
@@ -22,8 +18,7 @@ struct ContentView: View {
                     welcomeHeader
 
                     Text("Explore activities")
-                        .font(.title2)
-                        .bold()
+                        .font(.title2.weight(.bold))
 
                     LazyVGrid(
                         columns: Array(
@@ -37,64 +32,76 @@ struct ContentView: View {
                         } label: {
                             dashboardCard(
                                 title: "Learning Assistant",
-                                subtitle: "Rocket Math & Study",
-                                icon: "rocket.fill",
-                                backgroundColor: Color.blue.opacity(0.16),
-                                iconColor: .blue
+                                subtitle: "Blast off and learn!",
+                                icon: "book.fill",
+                                backgroundColor: Color(red: 0.82, green: 0.91, blue: 1.0),
+                                iconColor: Color(red: 0.12, green: 0.33, blue: 0.62)
                             )
                         }
+                        .buttonStyle(.plain)
+                        .contentShape(Rectangle())
 
                         NavigationLink {
                             RecessGameGuideView()
                         } label: {
                             dashboardCard(
                                 title: "Recess Game Guide",
-                                subtitle: "Playground Games & Rules",
+                                subtitle: "Let’s get moving!",
                                 icon: "figure.run",
-                                backgroundColor: Color.pink.opacity(0.16),
-                                iconColor: .pink
+                                backgroundColor: Color(red: 1.0, green: 0.87, blue: 0.92),
+                                iconColor: Color(red: 0.72, green: 0.18, blue: 0.38)
                             )
                         }
+                        .buttonStyle(.plain)
+                        .contentShape(Rectangle())
 
                         NavigationLink {
                             DailyChecklistView()
                         } label: {
                             dashboardCard(
                                 title: "Daily Checklist",
-                                subtitle: "Tasks & Reminders",
+                                subtitle: "Power up your day!",
                                 icon: "checkmark.square.fill",
-                                backgroundColor: Color.teal.opacity(0.16),
-                                iconColor: .teal
+                                backgroundColor: Color(red: 0.84, green: 0.95, blue: 0.88),
+                                iconColor: Color(red: 0.12, green: 0.48, blue: 0.29)
                             )
                         }
+                        .buttonStyle(.plain)
+                        .contentShape(Rectangle())
 
                         NavigationLink {
                             DanceGamesView()
                         } label: {
                             dashboardCard(
                                 title: "Dance Games",
-                                subtitle: "Movement & Fun",
-                                icon: "figure.social.dance",
-                                backgroundColor: Color.purple.opacity(0.16),
-                                iconColor: .purple
+                                subtitle: "Dance like a star!",
+                                icon: "music.note",
+                                backgroundColor: Color(red: 0.91, green: 0.86, blue: 1.0),
+                                iconColor: Color(red: 0.40, green: 0.22, blue: 0.70)
                             )
                         }
+                        .buttonStyle(.plain)
+                        .contentShape(Rectangle())
 
                         NavigationLink {
                             ReadingHelperView()
                         } label: {
                             dashboardCard(
                                 title: "Reading Helper",
-                                subtitle: "Stories & Vocabulary",
+                                subtitle: "Jump into a story!",
                                 icon: "book.fill",
-                                backgroundColor: Color.orange.opacity(0.16),
-                                iconColor: .orange
+                                backgroundColor: Color(red: 1.0, green: 0.92, blue: 0.79),
+                                iconColor: Color(red: 0.72, green: 0.34, blue: 0.08)
                             )
                         }
+                        .buttonStyle(.plain)
+                        .contentShape(Rectangle())
                     }
                 }
                 .padding()
             }
+            .background(Color.white)
+            .fontDesign(.rounded)
             .navigationTitle("My Create Task")
         }
     }
@@ -104,43 +111,31 @@ struct ContentView: View {
     private var welcomeHeader: some View {
         HStack(spacing: 16) {
             Image(systemName: "sparkles")
-                .font(.system(size: 36, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(width: 72, height: 72)
-                .background(
-                    LinearGradient(
-                        colors: [.orange, .pink],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .font(.system(size: 40, weight: .bold))
+                .foregroundStyle(Color(red: 0.20, green: 0.42, blue: 0.70))
+                .frame(width: 82, height: 82)
+                .background(Color(red: 0.85, green: 0.93, blue: 1.0))
+                .clipShape(RoundedRectangle(cornerRadius: 24))
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("My Create Task")
-                    .font(.largeTitle)
-                    .bold()
-                    .foregroundStyle(.primary)
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color(red: 0.18, green: 0.30, blue: 0.52))
 
-                Text("Choose an activity to explore")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+                Text("Pick a quest and have fun!")
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(Color(red: 0.35, green: 0.42, blue: 0.55))
             }
 
             Spacer()
         }
         .padding(24)
-        .background(
-            LinearGradient(
-                colors: [
-                    Color.orange.opacity(0.18),
-                    Color.pink.opacity(0.14)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .background(Color(red: 0.95, green: 0.97, blue: 1.0))
+        .clipShape(RoundedRectangle(cornerRadius: 28))
+        .overlay {
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(Color(red: 0.78, green: 0.87, blue: 0.98), lineWidth: 2)
+        }
     }
 
     private func dashboardCard(
@@ -150,51 +145,37 @@ struct ContentView: View {
         backgroundColor: Color,
         iconColor: Color
     ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.title)
+                .font(.system(size: 64, weight: .bold))
                 .foregroundStyle(iconColor)
-                .frame(width: 48, height: 48)
-                .background(iconColor.opacity(0.14))
-                .clipShape(Circle())
+                .frame(height: 76)
 
             Text(title)
-                .font(.headline)
-                .bold()
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.leading)
+                .font(.system(size: 17, weight: .bold, design: .rounded))
+                .foregroundStyle(Color(red: 0.16, green: 0.20, blue: 0.28))
+                .multilineTextAlignment(.center)
 
             Text(subtitle)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.leading)
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color(red: 0.28, green: 0.32, blue: 0.40))
+                .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: .infinity, minHeight: 150, alignment: .leading)
-        .padding(20)
+        .frame(maxWidth: .infinity, minHeight: 220)
+        .padding(.horizontal, 22)
+        .padding(.vertical, 24)
         .background(backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay {
-            Image(systemName: icon)
-                .font(.system(size: 112, weight: .bold))
-                .foregroundStyle(iconColor.opacity(0.12))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-                .padding(.trailing, 12)
-                .clipped()
-
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(.white.opacity(0.7), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 24)
+                .stroke(.white.opacity(0.9), lineWidth: 2)
         }
-        .contentShape(RoundedRectangle(cornerRadius: 20))
-        .scaleEffect(hoveredCard == title ? 1.03 : 1.0)
+        .contentShape(RoundedRectangle(cornerRadius: 24))
         .shadow(
-            color: .black.opacity(hoveredCard == title ? 0.14 : 0.06),
-            radius: hoveredCard == title ? 10 : 4,
-            y: 3
+            color: .black.opacity(0.08),
+            radius: 10,
+            y: 6
         )
-        .onHover { isHovering in
-            hoveredCard = isHovering ? title : nil
-        }
-        .animation(.easeInOut(duration: 0.15), value: hoveredCard)
     }
 }
 

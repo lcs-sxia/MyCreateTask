@@ -20,6 +20,14 @@ final class DailyChecklistViewModel {
         return count
     }
 
+    var completionProgress: Double {
+        guard !tasks.isEmpty else {
+            return 0
+        }
+
+        return Double(completedTaskCount) / Double(tasks.count)
+    }
+
     // MARK: - Functions
 
     func toggleTask(_ task: DailyTask) {
@@ -37,5 +45,29 @@ final class DailyChecklistViewModel {
         }
 
         tasks[taskIndex].isCompleted.toggle()
+    }
+
+    func addTask(title: String) {
+        let trimmedTitle: String = title.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmedTitle.isEmpty else {
+            return
+        }
+
+        tasks.append(DailyTask(title: trimmedTitle))
+    }
+
+    func deleteTasks(at offsets: IndexSet) {
+        let sortedOffsets: [Int] = offsets.sorted(by: >)
+
+        for offset in sortedOffsets {
+            tasks.remove(at: offset)
+        }
+    }
+
+    func delete(_ task: DailyTask) {
+        tasks.removeAll { currentTask in
+            currentTask.id == task.id
+        }
     }
 }
