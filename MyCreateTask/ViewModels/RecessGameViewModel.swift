@@ -7,19 +7,46 @@ final class RecessGameViewModel {
     // MARK: - Stored properties
 
     let allRecessGames: [RecessGame] = RecessGame.sampleGames
+    var playerCount: Int = 3
+    private(set) var selectedCategory: String?
 
-    // MARK: - Functions
+    // MARK: - Computed properties
 
-    // AP procedure: iteration and selection find games for a group.
-    func findGamesForGroup(playerCount: Int) -> [RecessGame] {
+    var categories: [String] {
+        var gameCategories: [String] = ["All"]
+
+        for game in allRecessGames {
+            if !gameCategories.contains(game.category) {
+                gameCategories.append(game.category)
+            }
+        }
+
+        return gameCategories
+    }
+
+    var filteredGames: [RecessGame] {
         var matchingGames: [RecessGame] = []
 
         for game in allRecessGames {
-            if playerCount >= game.minPlayers {
+            let matchesPlayers: Bool = playerCount >= game.minPlayers
+            let matchesCategory: Bool = selectedCategory == nil ||
+                game.category == selectedCategory
+
+            if matchesPlayers && matchesCategory {
                 matchingGames.append(game)
             }
         }
 
         return matchingGames
+    }
+
+    // MARK: - Functions
+
+    func selectCategory(_ category: String) {
+        if category == "All" {
+            selectedCategory = nil
+        } else {
+            selectedCategory = category
+        }
     }
 }

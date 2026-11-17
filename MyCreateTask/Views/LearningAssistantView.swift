@@ -18,19 +18,19 @@ struct LearningAssistantView: View {
             case .math:
                 subjectSection(
                     title: "Math Workshop",
-                    subtitle: "Solve Grade 4–5 word problems and explain your thinking.",
+                    subtitle: "Solve math problems and explain your thinking.",
                     subject: .math
                 )
             case .science:
                 subjectSection(
                     title: "Science Lab",
-                    subtitle: "Explore Grade 4–5 science concepts and test your knowledge.",
+                    subtitle: "Explore science concepts and test your knowledge.",
                     subject: .science
                 )
             case .socialStudies:
                 subjectSection(
                     title: "Social Studies Hub",
-                    subtitle: "Explore government and geography concepts for Grades 4–5.",
+                    subtitle: "Explore government and geography concepts",
                     subject: .socialStudies
                 )
             }
