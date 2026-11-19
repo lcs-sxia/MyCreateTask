@@ -48,8 +48,10 @@ struct RecessGameGuideView: View {
                 }
             }
         }
-        .frame(maxWidth: 1100, maxHeight: .infinity, alignment: .top)
-        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.horizontal, 28)
+        .padding(.top, 16)
+        .padding(.bottom, 16)
         .fontDesign(.rounded)
         .navigationTitle("Recess Game Guide")
         .navigationDestination(item: $randomlySelectedGame) { game in
@@ -65,7 +67,7 @@ struct RecessGameGuideView: View {
                 .font(.largeTitle.weight(.bold))
 
             Text("Filter playground games by player count and activity type.")
-                .font(.title3)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
     }
@@ -250,8 +252,10 @@ struct RecessGameDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }
         }
-        .frame(maxWidth: 1100, maxHeight: .infinity, alignment: .top)
-        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.horizontal, 28)
+        .padding(.top, 16)
+        .padding(.bottom, 16)
         .fontDesign(.rounded)
         .navigationTitle(game.name)
     }

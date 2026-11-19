@@ -11,7 +11,16 @@ struct LearningAssistantView: View {
     // MARK: - Computed properties
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Learning Assistant")
+                    .font(.largeTitle.bold())
+
+                Text("Practice, explain, and strengthen your understanding.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+
             topBar
 
             switch selectedSubject {
@@ -35,8 +44,10 @@ struct LearningAssistantView: View {
                 )
             }
         }
-        .frame(maxWidth: 960, maxHeight: .infinity, alignment: .top)
-        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .padding(.horizontal, 28)
+        .padding(.top, 16)
+        .padding(.bottom, 16)
         .navigationTitle("Learning Assistant")
         .onChange(of: selectedSubject) {
             viewModel.resetForSubjectChange()

@@ -70,4 +70,14 @@ final class DailyChecklistViewModel {
             currentTask.id == task.id
         }
     }
+
+    func clearCompletedTasks() {
+        tasks.removeAll { task in
+            task.isCompleted
+        }
+    }
+
+    func resetDefaults() {
+        tasks = DailyTask.sampleTasks
+    }
 }

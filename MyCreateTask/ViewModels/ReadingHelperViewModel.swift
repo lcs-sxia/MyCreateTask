@@ -8,22 +8,59 @@ final class ReadingHelperViewModel {
 
     let readingItems: [ReadingItem] = ReadingItem.sampleItems
     var selectedType: ReadingItemType = .vocabulary
+    var selectedPartOfSpeech: ReadingPartOfSpeech?
+    var selectedPassageCategory: String?
     private(set) var revealedVocabularyIDs: Set<UUID> = []
-    private(set) var readPassageIDs: Set<UUID> = []
-    private(set) var selectedAnswers: [UUID: String] = [:]
+    private(set) var masteredVocabularyIDs: Set<UUID> = []
 
     // MARK: - Computed properties
 
     var vocabularyItems: [ReadingItem] {
-        items(ofType: .vocabulary)
+        var matchingItems: [ReadingItem] = []
+
+        for item in readingItems {
+            guard item.type == .vocabulary else {
+                continue
+            }
+
+            if selectedPartOfSpeech == nil || item.partOfSpeech == selectedPartOfSpeech {
+                matchingItems.append(item)
+            }
+        }
+
+        return matchingItems
     }
 
     var passageItems: [ReadingItem] {
-        items(ofType: .passage)
+        var matchingItems: [ReadingItem] = []
+
+        for item in readingItems {
+            guard item.type == .passage else {
+                continue
+            }
+
+            if selectedPassageCategory == nil || item.category == selectedPassageCategory {
+                matchingItems.append(item)
+            }
+        }
+
+        return matchingItems
     }
 
-    var readPassageCount: Int {
-        readPassageIDs.count
+    var masteredVocabularyCount: Int {
+        masteredVocabularyIDs.count
+    }
+
+    var totalVocabularyCount: Int {
+        var count = 0
+
+        for item in readingItems {
+            if item.type == .vocabulary {
+                count += 1
+            }
+        }
+
+        return count
     }
 
     // MARK: - Functions
@@ -40,41 +77,19 @@ final class ReadingHelperViewModel {
         revealedVocabularyIDs.contains(item.id)
     }
 
-    func markPassageAsRead(_ item: ReadingItem) {
-        readPassageIDs.insert(item.id)
+    func revealVocabulary(_ item: ReadingItem) {
+        revealedVocabularyIDs.insert(item.id)
     }
 
-    func isPassageRead(_ item: ReadingItem) -> Bool {
-        readPassageIDs.contains(item.id)
-    }
-
-    func submitAnswer(_ answer: String, for item: ReadingItem) {
-        selectedAnswers[item.id] = answer
-    }
-
-    func selectedAnswer(for item: ReadingItem) -> String {
-        selectedAnswers[item.id, default: ""]
-    }
-
-    func isAnswerCorrect(for item: ReadingItem) -> Bool {
-        guard let answer = item.answer else {
-            return false
+    func toggleVocabularyMastered(_ item: ReadingItem) {
+        if masteredVocabularyIDs.contains(item.id) {
+            masteredVocabularyIDs.remove(item.id)
+        } else {
+            masteredVocabularyIDs.insert(item.id)
         }
-
-        return selectedAnswer(for: item)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .localizedCaseInsensitiveCompare(answer) == .orderedSame
     }
 
-    private func items(ofType type: ReadingItemType) -> [ReadingItem] {
-        var matchingItems: [ReadingItem] = []
-
-        for item in readingItems {
-            if item.type == type {
-                matchingItems.append(item)
-            }
-        }
-
-        return matchingItems
+    func isVocabularyMastered(_ item: ReadingItem) -> Bool {
+        masteredVocabularyIDs.contains(item.id)
     }
 }
