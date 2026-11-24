@@ -72,7 +72,6 @@ final class RecessGameViewModel {
         var matchingGames: [RecessGame] = []
         let searchTerm: String = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Check every game against the player, category, and keyword filters.
         for game in games {
             let matchesPlayers: Bool = recessGameMatches(
                 game: game,
