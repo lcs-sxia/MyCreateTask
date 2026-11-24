@@ -1,3 +1,11 @@
+//
+//  DailyTask.swift
+//  MyCreateTask
+//
+//  Created by Steven Xia on 2026-11-11.
+//  This code was generated using GitHub Copilot.
+//
+
 import Foundation
 
 struct DailyTask: Identifiable, Hashable {

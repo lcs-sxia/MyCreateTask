@@ -1,3 +1,11 @@
+//
+//  DailyChecklistView.swift
+//  MyCreateTask
+//
+//  Created by Steven Xia on 2026-11-10.
+//  This code was generated using GitHub Copilot.
+//
+
 import SwiftUI
 
 struct DailyChecklistView: View {
