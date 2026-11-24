@@ -2,8 +2,8 @@
 //  RecessGameGuideView.swift
 //  MyCreateTask
 //
-//  Created by Steven Xia on 2026-11-10.
-//  This code was generated using GitHub Copilot.
+//  Created on 2026-11-10.
+//  AI Acknowledgment: GitHub Copilot was used to assist with SwiftUI implementation, refactoring, and debugging. All code behavior and outputs were reviewed and verified by the student.
 //
 
 import SwiftUI
