@@ -24,6 +24,7 @@ struct RecessGameGuideView: View {
         ScrollView(.vertical, showsIndicators: true) {
             VStack(alignment: .leading, spacing: 16) {
                 header
+                searchBar
                 controlBar
                 gamesGridSection
             }
@@ -51,10 +52,17 @@ struct RecessGameGuideView: View {
                     .font(.title)
                     .foregroundStyle(.secondary)
 
-                Text("No games match the selected player count and category.")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                if viewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    Text("No games match the selected player count and category.")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                } else {
+                    Text("No games match your search")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
             }
             .frame(maxWidth: .infinity, minHeight: 180)
         } else {
@@ -87,6 +95,35 @@ struct RecessGameGuideView: View {
             Text("Filter playground games by player count and activity type.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private var searchBar: some View {
+        @Bindable var viewModel = viewModel
+
+        return HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+
+            TextField("Search games by keyword...", text: $viewModel.searchText)
+                .textFieldStyle(.plain)
+                .accessibilityLabel("Search games by keyword")
+
+            if !viewModel.searchText.isEmpty {
+                Button("Clear search", systemImage: "xmark.circle.fill") {
+                    viewModel.searchText = ""
+                }
+                .labelStyle(.iconOnly)
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .background(.quaternary.opacity(0.7), in: Capsule())
+        .overlay {
+            Capsule()
+                .stroke(.secondary.opacity(0.12), lineWidth: 1)
         }
     }
 

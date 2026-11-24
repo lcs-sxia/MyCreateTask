@@ -13,18 +13,7 @@ struct DailyChecklistView: View {
     // MARK: - Stored properties
 
     @State private var viewModel = DailyChecklistViewModel()
-    // This text stores the title while the add-task sheet is open.
     @State private var newTaskTitle: String = ""
-    @State private var showingAddTaskSheet: Bool = false
-    @FocusState private var isAddTaskFieldFocused: Bool
-
-    // These suggestions provide quick choices inside the add-task sheet.
-    private let quickSuggestions: [String] = [
-        "Practice Multiplication",
-        "Read French Book",
-        "Sign Student Agenda",
-        "Clean Up Workspace"
-    ]
 
     // MARK: - Computed properties
 
@@ -32,6 +21,7 @@ struct DailyChecklistView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 dailyChecklistHeader
+                customTaskInput
                 progressSummaryCard
                 taskContentSection
             }
@@ -42,9 +32,6 @@ struct DailyChecklistView: View {
             .fontDesign(.rounded)
         }
         .navigationTitle("Daily Checklist")
-        .sheet(isPresented: $showingAddTaskSheet) {
-            addTaskSheet
-        }
     }
 
     // MARK: - Views
@@ -111,12 +98,6 @@ struct DailyChecklistView: View {
             .accessibilityValue("\(completionPercentage) percent")
 
             HStack(spacing: 10) {
-                Button("New Task", systemImage: "plus") {
-                    newTaskTitle = ""
-                    showingAddTaskSheet = true
-                }
-                .buttonStyle(.borderedProminent)
-
                 Button("Clear Completed", systemImage: "checkmark.circle") {
                     viewModel.clearCompletedTasks()
                 }
@@ -137,61 +118,28 @@ struct DailyChecklistView: View {
         }
     }
 
-    private var addTaskSheet: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("New Task")
-                    .font(.title2.weight(.bold))
-
-                Spacer()
-
-                Button("Cancel") {
-                    showingAddTaskSheet = false
-                }
-                .buttonStyle(.bordered)
-                .keyboardShortcut(.cancelAction)
-            }
-
-            TextField("What would you like to accomplish?", text: $newTaskTitle)
-                .textFieldStyle(.roundedBorder)
-                .focused($isAddTaskFieldFocused)
+    private var customTaskInput: some View {
+        HStack(spacing: 10) {
+            TextField("Type a new task...", text: $newTaskTitle)
+                .textFieldStyle(.plain)
                 .onSubmit {
-                    addTask()
+                    addCustomTask(title: newTaskTitle)
                 }
 
-            Text("Quick suggestions")
-                .font(.headline)
-
-            LazyVGrid(
-                columns: [
-                    GridItem(.flexible(), spacing: 8),
-                    GridItem(.flexible(), spacing: 8)
-                ],
-                spacing: 8
-            ) {
-                ForEach(quickSuggestions, id: \.self) { suggestion in
-                    Button(suggestion) {
-                        newTaskTitle = suggestion
-                        isAddTaskFieldFocused = true
-                    }
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity)
-                }
-            }
-
-            Button("Add Task", systemImage: "plus") {
-                addTask()
+            Button("Add Task") {
+                addCustomTask(title: newTaskTitle)
             }
             .buttonStyle(.borderedProminent)
-            .frame(maxWidth: .infinity)
-            .disabled(newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .buttonBorderShape(.capsule)
         }
-        .padding(.horizontal, 28)
-        .padding(.vertical, 16)
-        .frame(width: 440)
-        .fontDesign(.rounded)
-        .onAppear {
-            isAddTaskFieldFocused = true
+        .padding(12)
+        .background(
+            Color.primary.opacity(0.04),
+            in: RoundedRectangle(cornerRadius: 16)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(.secondary.opacity(0.12), lineWidth: 1)
         }
     }
 
@@ -308,11 +256,14 @@ struct DailyChecklistView: View {
         return "Keep going—you are building great habits!"
     }
 
-    private func addTask() {
-        viewModel.addTask(title: newTaskTitle)
-        if !newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+    private func addCustomTask(title: String) {
+        let trimmedTitle: String = title.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if !trimmedTitle.isEmpty {
+            viewModel.addTask(title: trimmedTitle)
             newTaskTitle = ""
-            showingAddTaskSheet = false
+        } else {
+            newTaskTitle = ""
         }
     }
 }

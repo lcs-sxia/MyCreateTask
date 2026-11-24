@@ -27,6 +27,7 @@ final class RecessGameViewModel {
 
     let allRecessGames: [RecessGame] = RecessGame.sampleGames
     var selectedPlayerFilter: RecessPlayerFilter = .any
+    var searchText: String = ""
     private(set) var selectedCategory: String?
 
     // MARK: - Computed properties
@@ -47,7 +48,8 @@ final class RecessGameViewModel {
         filterRecessGames(
             games: allRecessGames,
             playerFilter: selectedPlayerFilter,
-            category: selectedCategory
+            category: selectedCategory,
+            searchText: searchText
         )
     }
 
@@ -64,11 +66,13 @@ final class RecessGameViewModel {
     func filterRecessGames(
         games: [RecessGame],
         playerFilter: RecessPlayerFilter,
-        category: String?
+        category: String?,
+        searchText: String
     ) -> [RecessGame] {
         var matchingGames: [RecessGame] = []
+        let searchTerm: String = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Check every recess game against the selected player and category filters.
+        // Check every game against the player, category, and keyword filters.
         for game in games {
             let matchesPlayers: Bool = recessGameMatches(
                 game: game,
@@ -82,7 +86,17 @@ final class RecessGameViewModel {
                 matchesCategory = true
             }
 
-            if matchesPlayers && matchesCategory {
+            var matchesSearchText: Bool = false
+            if searchTerm.isEmpty {
+                matchesSearchText = true
+            } else if game.name.localizedCaseInsensitiveContains(searchTerm)
+                || game.summary.localizedCaseInsensitiveContains(searchTerm) {
+                matchesSearchText = true
+            } else {
+                matchesSearchText = false
+            }
+
+            if matchesPlayers && matchesCategory && matchesSearchText {
                 matchingGames.append(game)
             }
         }
