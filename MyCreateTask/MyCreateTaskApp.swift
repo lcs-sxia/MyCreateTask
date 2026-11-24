@@ -12,6 +12,7 @@ struct MyCreateTaskApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(\.dynamicTypeSize, .xLarge)
         }
     }
 }

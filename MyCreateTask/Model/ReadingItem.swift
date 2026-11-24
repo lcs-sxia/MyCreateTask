@@ -64,6 +64,7 @@ struct ReadingItem: Identifiable, Hashable {
     let category: String?
     let summary: String?
     let readingTime: Int?
+    let readingLevel: Int?
     let wordCount: Int?
     let passageParagraphs: [String]
     let keyVocabulary: [ReadingKeyTerm]
@@ -80,6 +81,7 @@ struct ReadingItem: Identifiable, Hashable {
         category: String? = nil,
         summary: String? = nil,
         readingTime: Int? = nil,
+        readingLevel: Int? = nil,
         wordCount: Int? = nil,
         passageParagraphs: [String] = [],
         keyVocabulary: [ReadingKeyTerm] = [],
@@ -95,6 +97,7 @@ struct ReadingItem: Identifiable, Hashable {
         self.category = category
         self.summary = summary
         self.readingTime = readingTime
+        self.readingLevel = readingLevel
         self.wordCount = wordCount
         self.passageParagraphs = passageParagraphs
         self.keyVocabulary = keyVocabulary
@@ -135,6 +138,7 @@ extension ReadingItem {
             category: "Canadian Nature",
             summary: "Explore how boreal species depend on relationships, seasonal change, and responsible conservation. The passage connects an ecosystem's biodiversity to human stewardship.",
             readingTime: 4,
+            readingLevel: 2,
             wordCount: 310,
             passageParagraphs: [
                 "Across much of northern Ontario, the boreal forest stretches between the Great Lakes and the Arctic. This vast ecosystem contains spruce and pine trees, wetlands, rivers, and rocky ridges. It may look quiet, yet the forest is filled with interactions. Moose browse on young shoots, beavers shape streams, and fungi recycle nutrients from fallen trees.",
@@ -160,10 +164,11 @@ extension ReadingItem {
             category: "Canadian Nature",
             summary: "Discover how communities investigate pollution and protect freshwater across the Great Lakes. The passage emphasizes evidence, cooperation, and practical action.",
             readingTime: 4,
+            readingLevel: 2,
             wordCount: 298,
             passageParagraphs: [
                 "The Great Lakes contain nearly one-fifth of Earth's surface freshwater, and they support wildlife, transportation, industry, and communities across Ontario. Because water moves between shorelines and rivers, pollution in one area can affect a much larger region. A dropped piece of plastic may travel from a street drain to a lake and eventually enter the food chain.",
-                "Grade five students in a lakeside town investigate this problem through a “watershed walk.” They observe storm drains, test small water samples, and record litter near the shore. The students form a hypothesis before collecting evidence: they predict that locations near storm drains will contain more microplastics than beaches farther away.",
+                "Young researchers in a lakeside town investigate this problem through a “watershed walk.” They observe storm drains, test small water samples, and record litter near the shore. The students form a hypothesis before collecting evidence: they predict that locations near storm drains will contain more microplastics than beaches farther away.",
                 "Their results show that the pattern is not completely consistent. Wind, recent storms, and park cleaning also influence what they find. Instead of dismissing the data, the class analyzes the variables and proposes a larger study. This careful approach prevents a single observation from becoming an unsupported conclusion.",
                 "Local scientists, Indigenous communities, schools, and municipal teams then collaborate on the next steps. They organize shoreline cleanups, improve storm-drain filters, and reduce unnecessary packaging. No single group solves the issue alone, but a combination of science, public policy, and informed choices can make the lakes more resilient."
             ],
@@ -185,6 +190,7 @@ extension ReadingItem {
             category: "Science & Inquiry",
             summary: "Compare hydroelectric, wind, and solar options in Ontario's varied landscapes. The article explains trade-offs through inquiry rather than presenting one answer.",
             readingTime: 4,
+            readingLevel: 2,
             wordCount: 320,
             passageParagraphs: [
                 "Ontario generates electricity through several renewable sources, including water, wind, and sunlight. Hydroelectric stations use moving water to turn turbines, wind farms use rotating blades, and solar panels convert light into electrical energy. Each system depends on natural conditions, existing infrastructure, and careful planning.",
@@ -210,6 +216,7 @@ extension ReadingItem {
             category: "Community & History",
             summary: "Learn how treaties and Indigenous stewardship have shaped relationships with land in Ontario. The passage encourages critical reading about historical perspective and responsibility.",
             readingTime: 5,
+            readingLevel: 3,
             wordCount: 340,
             passageParagraphs: [
                 "Treaties are agreements that have shaped relationships among Indigenous Nations, the Crown, newcomers, and the land. In what is now Ontario, treaties reflect different understandings of sharing, jurisdiction, and long-term responsibility. Because historical records used European legal language, later readers must interpret documents carefully and consider Indigenous perspectives.",
@@ -235,6 +242,7 @@ extension ReadingItem {
             category: "Science & Inquiry",
             summary: "Follow the Canadarm legacy from a Canadian engineering challenge to a global space program. The passage examines problem-solving, teamwork, and future exploration.",
             readingTime: 5,
+            readingLevel: 3,
             wordCount: 332,
             passageParagraphs: [
                 "The Canadarm began as an engineering challenge: how could astronauts move large objects outside a spacecraft safely? A Canadian team answered with a remote-controlled robotic arm that could extend, grip, and release equipment in weightlessness. The first Canadarm helped launch satellites and inspect the outside of a Space Shuttle.",
@@ -260,9 +268,10 @@ extension ReadingItem {
             category: "Community & History",
             summary: "Examine how young citizens identify needs and turn ideas into responsible civic action. The passage shows that participation can begin with research, listening, and measurable goals.",
             readingTime: 4,
+            readingLevel: 2,
             wordCount: 300,
             passageParagraphs: [
-                "Civic responsibility means participating in decisions that affect a community. It can include voting when eligible, attending public meetings, obeying fair rules, and volunteering. For Grade five and six students, civic action often begins with noticing an issue and asking who is affected.",
+                "Civic responsibility means participating in decisions that affect a community. It can include voting when eligible, attending public meetings, obeying fair rules, and volunteering. For young people, civic action often begins with noticing an issue and asking who is affected.",
                 "A class near Toronto discovers that the walking route to a community center crosses a busy driveway. Rather than assume a solution, students observe traffic at different times, survey users, and analyze the results. They include perspectives from students, caregivers, bus drivers, and accessibility advocates.",
                 "The class prepares a clear proposal for the local council. Their ideas include brighter signs, a shorter crossing route, and a temporary volunteer monitor. They also explain that the proposal should be tested and adjusted if it creates another problem. A resourceful team recognizes that a strong plan uses evidence and welcomes criticism.",
                 "The council approves a pilot project for six months. If collisions or near misses decrease, the community may continue or improve the design. If not, leaders will adapt the plan. This process shows that responsible participation is sustained: citizens listen, act, measure, and learn."
@@ -277,6 +286,81 @@ extension ReadingItem {
                 ReadingQuestion(prompt: "What is the main idea of the passage?", options: ["Civic participation should use listening, evidence, action, and reflection.", "Students should make changes without adults.", "Only traffic problems count as civic issues.", "A pilot project never needs to be evaluated."], correctOptionIndex: 0, explanation: "The passage demonstrates the complete cycle of identifying an issue, gathering evidence, proposing action, and evaluating results."),
                 ReadingQuestion(prompt: "Why did the class include several perspectives?", options: ["To understand how the crossing affected different community members.", "To choose one correct route without evidence.", "To replace the council's responsibilities.", "To avoid testing the project."], correctOptionIndex: 0, explanation: "The students interviewed and surveyed people who experienced or managed the crossing."),
                 ReadingQuestion(prompt: "What does “adapt” mean at the end of the passage?", options: ["Ignore the pilot project's results.", "Change the plan in response to evidence.", "Return to the first assumption.", "End participation in the community."], correctOptionIndex: 1, explanation: "The council and students would adjust the plan based on whether the trial improved safety.")
+            ]
+        ),
+        ReadingItem(
+            type: .passage,
+            title: "A Walk in the Wetland",
+            category: "Canadian Nature",
+            summary: "See how a wetland gives frogs, birds, and plants a place to live.",
+            readingTime: 2,
+            readingLevel: 1,
+            wordCount: 180,
+            passageParagraphs: [
+                "A wetland is a wet area covered by shallow water or very damp soil. Many wetlands in Ontario have cattails, reeds, frogs, ducks, and insects. These plants and animals depend on one another.",
+                "Cattails provide shelter for birds. Ducks find food among the plants. Frogs eat insects and become food for larger animals. This chain of life is called a food web.",
+                "Wetlands also hold extra rainwater. They help slow floods and keep nearby water clean. When people protect wetlands, they help many living things and keep communities safer.",
+                "Always explore a wetland with an adult. Stay on the path and watch wildlife from far away. You can help by not littering and reporting damaged areas."
+            ],
+            keyVocabulary: [
+                ReadingKeyTerm(term: "wetland", meaning: "An area with shallow water or very damp soil."),
+                ReadingKeyTerm(term: "food web", meaning: "Connected paths showing how living things get food."),
+                ReadingKeyTerm(term: "habitat", meaning: "A place where a living thing finds what it needs.")
+            ],
+            questions: [
+                ReadingQuestion(prompt: "What is the main purpose of a wetland?", options: ["It provides habitat and helps control water.", "It replaces every forest.", "It only grows flowers.", "It has no connection to animals."], correctOptionIndex: 0, explanation: "The passage says wetlands provide homes and help hold extra rainwater."),
+                ReadingQuestion(prompt: "What is a food web?", options: ["A net used in science", "Connected paths showing how living things get food", "A map of a wetland", "A kind of water plant"], correctOptionIndex: 1, explanation: "The passage explains that a food web shows connected feeding relationships."),
+                ReadingQuestion(prompt: "How can students help wetlands?", options: ["Litter near the path", "Stay on the path and do not litter", "Disturb nesting birds", "Remove the cattails"], correctOptionIndex: 1, explanation: "The final paragraph suggests staying on paths and avoiding litter.")
+            ]
+        ),
+        ReadingItem(
+            type: .passage,
+            title: "Light and Shadows",
+            category: "Science & Inquiry",
+            summary: "Discover how a light source and an object work together to make a shadow.",
+            readingTime: 3,
+            readingLevel: 1,
+            wordCount: 195,
+            passageParagraphs: [
+                "A shadow forms when an object blocks light. The object may be a tree, a pencil, or your own body. If light can pass around the edges, the shadow will show a simple shape.",
+                "Light travels in straight lines. When you move an object closer to a lamp, its shadow can look larger. When you move the object farther away, the shadow may become smaller.",
+                "The Sun also makes shadows. At noon, the Sun is high in the sky, so shadows are short. In the morning or afternoon, shadows grow longer because sunlight reaches us at a lower angle.",
+                "Try this with a flashlight and a small toy. Change the distance and notice how the shadow changes. Make one careful prediction before each test."
+            ],
+            keyVocabulary: [
+                ReadingKeyTerm(term: "shadow", meaning: "A dark shape made when an object blocks light."),
+                ReadingKeyTerm(term: "light source", meaning: "Something that gives off light."),
+                ReadingKeyTerm(term: "angle", meaning: "The direction or slant of a line or ray.")
+            ],
+            questions: [
+                ReadingQuestion(prompt: "What makes a shadow?", options: ["A loud sound", "An object blocking light", "A warm temperature", "A coloured marker"], correctOptionIndex: 1, explanation: "The passage says shadows form when an object blocks light."),
+                ReadingQuestion(prompt: "When are shadows usually shortest?", options: ["At noon", "At midnight", "After dark", "During rain"], correctOptionIndex: 0, explanation: "The passage says shadows are short when the Sun is high at noon."),
+                ReadingQuestion(prompt: "What should students do before each flashlight test?", options: ["Predict what will happen", "Turn off the flashlight", "Leave the room", "Use no toy"], correctOptionIndex: 0, explanation: "The final paragraph asks students to make a prediction.")
+            ]
+        ),
+        ReadingItem(
+            type: .passage,
+            title: "The School Recycling Team",
+            category: "Community & History",
+            summary: "Learn how a small student team uses sorting, planning, and teamwork to reduce waste.",
+            readingTime: 3,
+            readingLevel: 1,
+            wordCount: 205,
+            passageParagraphs: [
+                "A recycling team at Westview School noticed too much paper in the garbage. The students wanted to solve the problem. First, they asked every class how much paper and plastic they threw away.",
+                "The team drew a chart. It showed which rooms produced the most recyclable material. They also checked the labels on bins. Some bins needed clearer signs.",
+                "Next, the students made bright signs with pictures. They showed which items belong in paper, plastic, and garbage bins. Teachers helped place the signs near every bin.",
+                "After one month, the school found less recyclable material in the garbage. The team checked the chart again and celebrated progress. They learned that teamwork and clear directions can improve a routine."
+            ],
+            keyVocabulary: [
+                ReadingKeyTerm(term: "recyclable", meaning: "Able to be collected and made into new items."),
+                ReadingKeyTerm(term: "data", meaning: "Facts or information used to answer a question."),
+                ReadingKeyTerm(term: "teamwork", meaning: "Working together to reach a shared goal.")
+            ],
+            questions: [
+                ReadingQuestion(prompt: "What problem did the recycling team notice?", options: ["Too much paper in the garbage", "Too few desks", "Long lineups for lunch", "Broken playground slides"], correctOptionIndex: 0, explanation: "The passage begins by describing too much paper in garbage."),
+                ReadingQuestion(prompt: "How did the team show their findings?", options: ["With a chart", "With a song", "With a science kit", "With a treasure map"], correctOptionIndex: 0, explanation: "The team drew a chart to compare recyclable material."),
+                ReadingQuestion(prompt: "What helped the team improve recycling?", options: ["Clear signs and teamwork", "More garbage bins", "Less classroom work", "Removing all bins"], correctOptionIndex: 0, explanation: "Clear signs and the team's shared work improved the routine.")
             ]
         )
     ]

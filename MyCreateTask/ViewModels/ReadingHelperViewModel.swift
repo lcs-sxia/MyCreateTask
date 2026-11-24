@@ -1,66 +1,96 @@
 import Foundation
 import Observation
 
+enum ReadingLevelFilter: String, CaseIterable, Identifiable {
+    case all = "All Levels"
+    case level1 = "Level 1"
+    case level2 = "Level 2"
+    case level3 = "Level 3"
+
+    var id: String {
+        rawValue
+    }
+
+    var level: Int? {
+        switch self {
+        case .all:
+            return nil
+        case .level1:
+            return 1
+        case .level2:
+            return 2
+        case .level3:
+            return 3
+        }
+    }
+}
+ 
+enum ReadingTimeFilter: String, CaseIterable, Identifiable {
+    case all = "All Times"
+    case short = "2–3 min"
+    case medium = "4–5 min"
+
+    var id: String {
+        rawValue
+    }
+
+    func matches(_ readingTime: Int) -> Bool {
+        switch self {
+        case .all:
+            return true
+        case .short:
+            return readingTime >= 2 && readingTime <= 3
+        case .medium:
+            return readingTime >= 4 && readingTime <= 5
+        }
+    }
+}
+
 @Observable
 final class ReadingHelperViewModel {
 
     // MARK: - Stored properties
 
-    let readingItems: [ReadingItem] = ReadingItem.sampleItems
+    // This list is the source of truth for all vocabulary words and passages.
+    private let readingItems: [ReadingItem] = ReadingItem.sampleItems
     var selectedType: ReadingItemType = .vocabulary
     var selectedPartOfSpeech: ReadingPartOfSpeech?
     var selectedPassageCategory: String?
+    var selectedPassageLevel: ReadingLevelFilter = .all
+    var selectedPassageTime: ReadingTimeFilter = .all
+    // These sets remember which cards have been revealed or mastered.
     private(set) var revealedVocabularyIDs: Set<UUID> = []
     private(set) var masteredVocabularyIDs: Set<UUID> = []
 
     // MARK: - Computed properties
 
     var vocabularyItems: [ReadingItem] {
-        var matchingItems: [ReadingItem] = []
-
-        for item in readingItems {
-            guard item.type == .vocabulary else {
-                continue
-            }
-
-            if selectedPartOfSpeech == nil || item.partOfSpeech == selectedPartOfSpeech {
-                matchingItems.append(item)
-            }
-        }
-
-        return matchingItems
+        // Send the saved filters to the clear loop-based filtering function.
+        filterVocabulary(
+            readingItems: readingItems,
+            selectedPartOfSpeech: selectedPartOfSpeech
+        )
     }
 
     var passageItems: [ReadingItem] {
-        var matchingItems: [ReadingItem] = []
-
-        for item in readingItems {
-            guard item.type == .passage else {
-                continue
-            }
-
-            if selectedPassageCategory == nil || item.category == selectedPassageCategory {
-                matchingItems.append(item)
-            }
-        }
-
-        return matchingItems
+        // Send the saved category, level, and time choices to the passage filter.
+        filterPassages(
+            readingItems: readingItems,
+            category: selectedPassageCategory,
+            level: selectedPassageLevel.level,
+            timeRange: selectedPassageTime
+        )
     }
 
     var masteredVocabularyCount: Int {
-        masteredVocabularyIDs.count
+        countMasteredVocabulary(
+            readingItems: readingItems,
+            masteredVocabularyIDs: masteredVocabularyIDs
+        )
     }
 
     var totalVocabularyCount: Int {
-        var count = 0
-
-        for item in readingItems {
-            if item.type == .vocabulary {
-                count += 1
-            }
-        }
-
-        return count
+        countVocabularyItems(readingItems: readingItems)
     }
 
     // MARK: - Functions
@@ -91,5 +121,96 @@ final class ReadingHelperViewModel {
 
     func isVocabularyMastered(_ item: ReadingItem) -> Bool {
         masteredVocabularyIDs.contains(item.id)
+    }
+
+    // MARK: - Helper functions
+
+    private func filterVocabulary(
+        readingItems: [ReadingItem],
+        selectedPartOfSpeech: ReadingPartOfSpeech?
+    ) -> [ReadingItem] {
+        var matchingItems: [ReadingItem] = []
+
+        // Check each reading item one at a time.
+        for item in readingItems {
+            if item.type != .vocabulary {
+                continue
+            }
+
+            // A nil part of speech means that All is selected.
+            if selectedPartOfSpeech == nil {
+                matchingItems.append(item)
+            } else if item.partOfSpeech == selectedPartOfSpeech {
+                matchingItems.append(item)
+            }
+        }
+
+        return matchingItems
+    }
+
+    func filterPassages(
+        readingItems: [ReadingItem],
+        category: String?,
+        level: Int?,
+        timeRange: ReadingTimeFilter
+    ) -> [ReadingItem] {
+        var matchingItems: [ReadingItem] = []
+
+        // Check every reading item against the three saved passage filters.
+        for item in readingItems {
+            if item.type != .passage {
+                continue
+            }
+
+            if category != nil {
+                if item.category != category {
+                    continue
+                }
+            }
+
+            if level != nil {
+                if item.readingLevel != level {
+                    continue
+                }
+            }
+
+            let readingTime: Int = item.readingTime ?? 0
+            if timeRange.matches(readingTime) {
+                matchingItems.append(item)
+            }
+        }
+
+        return matchingItems
+    }
+
+    private func countVocabularyItems(readingItems: [ReadingItem]) -> Int {
+        var count: Int = 0
+
+        // Count vocabulary items only, so the interface has an accurate total.
+        for item in readingItems {
+            if item.type == .vocabulary {
+                count += 1
+            }
+        }
+
+        return count
+    }
+
+    private func countMasteredVocabulary(
+        readingItems: [ReadingItem],
+        masteredVocabularyIDs: Set<UUID>
+    ) -> Int {
+        var count: Int = 0
+
+        // Count only vocabulary cards that the student marked mastered.
+        for item in readingItems {
+            if item.type == .vocabulary {
+                if masteredVocabularyIDs.contains(item.id) {
+                    count += 1
+                }
+            }
+        }
+
+        return count
     }
 }

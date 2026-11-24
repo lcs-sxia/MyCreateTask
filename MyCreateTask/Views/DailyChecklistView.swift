@@ -5,10 +5,12 @@ struct DailyChecklistView: View {
     // MARK: - Stored properties
 
     @State private var viewModel = DailyChecklistViewModel()
+    // This text stores the title while the add-task sheet is open.
     @State private var newTaskTitle: String = ""
     @State private var showingAddTaskSheet: Bool = false
     @FocusState private var isAddTaskFieldFocused: Bool
 
+    // These suggestions provide quick choices inside the add-task sheet.
     private let quickSuggestions: [String] = [
         "Practice Multiplication",
         "Read French Book",
@@ -21,20 +23,9 @@ struct DailyChecklistView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Daily Checklist")
-                    .font(.largeTitle.weight(.bold))
-
-                Text("Plan today's tasks and celebrate completed work.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
+                dailyChecklistHeader
                 progressSummaryCard
-
-                if viewModel.tasks.isEmpty {
-                    emptyState
-                } else {
-                    taskGrid
-                }
+                taskContentSection
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 28)
@@ -50,6 +41,28 @@ struct DailyChecklistView: View {
 
     // MARK: - Views
 
+    // This header explains the purpose of the checklist.
+    private var dailyChecklistHeader: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Daily Checklist")
+                .font(.largeTitle.weight(.bold))
+
+            Text("Plan today's tasks and celebrate completed work.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // This section chooses between the empty state and the task cards.
+    @ViewBuilder
+    private var taskContentSection: some View {
+        if viewModel.tasks.isEmpty {
+            emptyState
+        } else {
+            taskGrid
+        }
+    }
+
     private var progressSummaryCard: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top) {
@@ -59,7 +72,7 @@ struct DailyChecklistView: View {
 
                     Text(progressSubtitle)
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary.opacity(0.88))
                 }
 
                 Spacer()
@@ -102,7 +115,7 @@ struct DailyChecklistView: View {
                 .buttonStyle(.bordered)
                 .disabled(viewModel.completedTaskCount == 0)
 
-                Button("Reset Defaults", systemImage: "arrow.counterclockwise") {
+                Button("Load Daily Tasks", systemImage: "arrow.clockwise") {
                     viewModel.resetDefaults()
                 }
                 .buttonStyle(.bordered)
@@ -203,7 +216,7 @@ struct DailyChecklistView: View {
                     .foregroundStyle(task.isCompleted ? .green : .secondary)
 
                     Text(task.title)
-                        .font(.headline)
+                        .font(.body.weight(.medium))
                         .foregroundStyle(
                             task.isCompleted ? .secondary : .primary
                         )
@@ -252,11 +265,11 @@ struct DailyChecklistView: View {
             Text("All clear!")
                 .font(.title2.weight(.bold))
 
-            Text("Add a new task or reset the defaults to keep your day on track.")
+            Text("Add a new task or load today's daily tasks to keep your day on track.")
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
-            Button("Reset Defaults", systemImage: "arrow.counterclockwise") {
+            Button("Load Daily Tasks", systemImage: "checklist") {
                 viewModel.resetDefaults()
             }
             .buttonStyle(.borderedProminent)

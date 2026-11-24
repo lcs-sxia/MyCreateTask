@@ -6,6 +6,7 @@ struct DanceGamesView: View {
     // MARK: - Stored properties
 
     @State private var viewModel = DanceGamesViewModel()
+    // This optional value holds the activity chosen by the random button.
     @State private var randomlySelectedGame: DanceGame?
 
     // MARK: - Computed properties
@@ -13,46 +14,9 @@ struct DanceGamesView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Dance Games")
-                    .font(.largeTitle.weight(.bold))
-
-                Text("Choose a movement game for a group.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-
+                danceGamesHeader
                 controlBar
-
-                if viewModel.filteredGames.isEmpty {
-                    VStack(spacing: 8) {
-                        Image(systemName: "music.note")
-                            .font(.title)
-                            .foregroundStyle(.secondary)
-
-                        Text("No activities match the selected category and energy level.")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 180)
-                } else {
-                    LazyVGrid(
-                        columns: [
-                            GridItem(.flexible(), spacing: 12),
-                            GridItem(.flexible(), spacing: 12)
-                        ],
-                        spacing: 12
-                    ) {
-                        ForEach(viewModel.filteredGames) { game in
-                            NavigationLink {
-                                DanceGameDetailView(game: game, viewModel: viewModel)
-                            } label: {
-                                danceCard(game)
-                            }
-                            .buttonStyle(.plain)
-                            .contentShape(Rectangle())
-                        }
-                    }
-                }
+                danceActivitiesSection
             }
             .padding(.horizontal, 28)
             .padding(.top, 16)
@@ -72,24 +36,71 @@ struct DanceGamesView: View {
 
     // MARK: - Views
 
+    // This header introduces the Dance Games screen.
+    private var danceGamesHeader: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Dance Games")
+                .font(.largeTitle.weight(.bold))
+
+            Text("Choose a movement game for a group.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // This section shows an empty state or the filtered activity cards.
+    @ViewBuilder
+    private var danceActivitiesSection: some View {
+        if viewModel.filteredGames.isEmpty {
+            VStack(spacing: 8) {
+                Image(systemName: "music.note")
+                    .font(.title)
+                    .foregroundStyle(.secondary)
+
+                Text("No activities match the selected category and energy level.")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, minHeight: 180)
+        } else {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 12),
+                    GridItem(.flexible(), spacing: 12)
+                ],
+                spacing: 12
+            ) {
+                ForEach(viewModel.filteredGames) { game in
+                    NavigationLink {
+                        DanceGameDetailView(game: game, viewModel: viewModel)
+                    } label: {
+                        danceCard(game)
+                    }
+                    .buttonStyle(.plain)
+                    .contentShape(Rectangle())
+                }
+            }
+        }
+    }
+
     private var controlBar: some View {
-        HStack(spacing: 8) {
-            ScrollView(.horizontal, showsIndicators: false) {
+        HStack(alignment: .bottom, spacing: 16) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 8) {
                     Text("Category:")
-                        .font(.caption.weight(.bold))
+                        .font(.subheadline.weight(.bold))
                         .foregroundStyle(.secondary)
 
                     categoryPill(title: "All", category: nil)
                     ForEach(DanceGameCategory.allCases) { category in
                         categoryPill(title: category.rawValue, category: category)
                     }
+                }
 
-                    Divider()
-                        .frame(height: 24)
-
+                HStack(spacing: 8) {
                     Text("Energy:")
-                        .font(.caption.weight(.bold))
+                        .font(.subheadline.weight(.bold))
                         .foregroundStyle(.secondary)
 
                     energyPill(title: "All", energy: nil)
@@ -101,44 +112,60 @@ struct DanceGamesView: View {
 
             Spacer()
 
-            Text("\(viewModel.filteredGames.count) Activities")
-                .font(.caption.weight(.bold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(.blue.opacity(0.12))
-                .foregroundStyle(.blue)
-                .clipShape(Capsule())
+            VStack(alignment: .trailing, spacing: 8) {
+                Text("\(viewModel.filteredGames.count) Activities")
+                    .font(.caption.weight(.bold))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(.blue.opacity(0.12))
+                    .foregroundStyle(.blue)
+                    .clipShape(Capsule())
 
-            Button("Random Activity", systemImage: "shuffle") {
-                randomlySelectedGame = viewModel.filteredGames.randomElement()
+                Button("Random Activity", systemImage: "shuffle") {
+                    randomlySelectedGame = viewModel.filteredGames.randomElement()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .disabled(viewModel.filteredGames.isEmpty)
+                .opacity(viewModel.filteredGames.isEmpty ? 0.5 : 1.0)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .disabled(viewModel.filteredGames.isEmpty)
-            .opacity(viewModel.filteredGames.isEmpty ? 0.5 : 1.0)
         }
     }
 
     private func categoryPill(title: String, category: DanceGameCategory?) -> some View {
         let isSelected = viewModel.selectedCategory == category
 
-        return Button(title) {
+        return Button {
             viewModel.selectedCategory = category
+        } label: {
+            Text(title)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .frame(minHeight: 34)
+                .background(isSelected ? .blue : Color.primary.opacity(0.06), in: Capsule())
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .tint(isSelected ? .blue : nil)
+        .buttonStyle(.plain)
+        .clipShape(Capsule())
     }
 
     private func energyPill(title: String, energy: DanceGameEnergy?) -> some View {
         let isSelected = viewModel.selectedEnergy == energy
 
-        return Button(title) {
+        return Button {
             viewModel.selectedEnergy = energy
+        } label: {
+            Text(title)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .frame(minHeight: 34)
+                .background(isSelected ? .orange : Color.primary.opacity(0.06), in: Capsule())
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .tint(isSelected ? .purple : nil)
+        .buttonStyle(.plain)
+        .clipShape(Capsule())
     }
 
     private func danceCard(_ game: DanceGame) -> some View {
@@ -146,7 +173,7 @@ struct DanceGamesView: View {
             HStack(alignment: .top, spacing: 8) {
                 Text(game.name)
                     .font(.headline)
-                    .lineLimit(1)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Spacer()
 
@@ -172,16 +199,22 @@ struct DanceGamesView: View {
             }
 
             Text(game.description)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+                .font(.subheadline)
+                .foregroundStyle(.primary.opacity(0.88))
+                .fixedSize(horizontal: false, vertical: true)
 
-            HStack(spacing: 10) {
-                Label("\(game.duration) sec", systemImage: "clock")
+            HStack(spacing: 8) {
+                Label("\(game.duration) sec", systemImage: "clock.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.blue)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(.blue.opacity(0.13), in: Capsule())
+
                 Label(game.groupSize, systemImage: "person.2")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
             }
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 128, alignment: .topLeading)
         .padding(12)
@@ -270,7 +303,7 @@ struct DanceGamesView: View {
 
                 Text(value)
                     .font(.title3.bold())
-                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .padding(12)
@@ -346,10 +379,11 @@ struct DanceGamesView: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Classroom Tip")
-                        .font(.caption.weight(.bold))
+                        .font(.subheadline.weight(.bold))
                     Text(game.classroomTip)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary.opacity(0.88))
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
             }

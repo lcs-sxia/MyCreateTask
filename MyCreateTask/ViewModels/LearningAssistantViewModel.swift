@@ -6,6 +6,7 @@ final class LearningAssistantViewModel {
 
     // MARK: - Stored properties
 
+    // These lists hold every question and study concept for the app.
     let allQuestions: [LearningQuestion] = LearningQuestion.sampleQuestions
     let allStudyConcepts: [StudyConcept] = StudyConcept.sampleConcepts
 
@@ -16,6 +17,7 @@ final class LearningAssistantViewModel {
     private(set) var wrongSelectedOptions: Set<String> = []
 
     private var completedQuestionIDs: Set<UUID> = []
+    private var attemptedIncorrectQuestionIDs: Set<UUID> = []
     private var selectedAnswers: [UUID: String] = [:]
 
     // MARK: - Initializer
@@ -76,6 +78,7 @@ final class LearningAssistantViewModel {
         hasFailedCurrentQuestion = false
         showHint = false
         wrongSelectedOptions = []
+        selectedAnswers.removeValue(forKey: subjectQuestions[currentIndex].id)
 
         let nextQuestionID: UUID = subjectQuestions[nextIndex].id
         selectedAnswers.removeValue(forKey: nextQuestionID)
@@ -85,6 +88,13 @@ final class LearningAssistantViewModel {
         hasFailedCurrentQuestion = false
         showHint = false
         wrongSelectedOptions = []
+    }
+
+    func tryAgain(for question: LearningQuestion) {
+        selectedAnswers.removeValue(forKey: question.id)
+        wrongSelectedOptions = []
+        hasFailedCurrentQuestion = false
+        showHint = false
     }
 
     func selectedAnswer(for question: LearningQuestion) -> String? {
@@ -97,18 +107,24 @@ final class LearningAssistantViewModel {
 
         let normalizedAnswer: String = normalize(answer)
         let normalizedCorrectAnswer: String = normalize(question.correctAnswer)
-        let isCorrect: Bool = normalizedAnswer == normalizedCorrectAnswer
+        let isCorrect: Bool = checkQuizAnswer(
+            selectedOption: normalizedAnswer,
+            correctOption: normalizedCorrectAnswer
+        )
 
         if !isCorrect {
             hasFailedCurrentQuestion = true
             wrongSelectedOptions.insert(answer)
+            attemptedIncorrectQuestionIDs.insert(question.id)
         }
 
-        if isCorrect &&
-            !hasFailedCurrentQuestion &&
-            !completedQuestionIDs.contains(question.id) {
+        if isCorrect && !completedQuestionIDs.contains(question.id) {
             completedQuestionIDs.insert(question.id)
-            score += 10
+            let wasAttemptedIncorrectly: Bool =
+                attemptedIncorrectQuestionIDs.contains(question.id)
+            score += calculateQuizPoints(wasAttemptedIncorrectly: wasAttemptedIncorrectly)
+            hasFailedCurrentQuestion = false
+            wrongSelectedOptions = []
         }
 
         return isCorrect
@@ -124,6 +140,29 @@ final class LearningAssistantViewModel {
 
     func toggleHint() {
         showHint.toggle()
+    }
+
+    // MARK: - Helper functions
+
+    func checkQuizAnswer(selectedOption: String, correctOption: String) -> Bool {
+        // Normalize both answers before comparing them.
+        let selectedAnswer: String = normalize(selectedOption)
+        let correctAnswer: String = normalize(correctOption)
+
+        if selectedAnswer == correctAnswer {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    private func calculateQuizPoints(wasAttemptedIncorrectly: Bool) -> Int {
+        // First-try answers earn ten points; later answers earn five points.
+        if wasAttemptedIncorrectly {
+            return 5
+        } else {
+            return 10
+        }
     }
 
     private func normalize(_ answer: String) -> String {

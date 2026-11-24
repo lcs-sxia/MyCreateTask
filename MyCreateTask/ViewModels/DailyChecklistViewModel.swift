@@ -11,13 +11,7 @@ final class DailyChecklistViewModel {
     // MARK: - Computed properties
 
     var completedTaskCount: Int {
-        var count: Int = 0
-
-        for task in tasks where task.isCompleted {
-            count += 1
-        }
-
-        return count
+        countCompletedTasks(tasks: tasks)
     }
 
     var completionProgress: Double {
@@ -29,6 +23,19 @@ final class DailyChecklistViewModel {
     }
 
     // MARK: - Functions
+
+    func countCompletedTasks(tasks: [DailyTask]) -> Int {
+        var count: Int = 0
+
+        // Add one for each task that is marked complete.
+        for task in tasks {
+            if task.isCompleted {
+                count += 1
+            }
+        }
+
+        return count
+    }
 
     func toggleTask(_ task: DailyTask) {
         var taskIndex: Int?
@@ -58,23 +65,48 @@ final class DailyChecklistViewModel {
     }
 
     func deleteTasks(at offsets: IndexSet) {
-        let sortedOffsets: [Int] = offsets.sorted(by: >)
+        var offsetArray: [Int] = []
 
-        for offset in sortedOffsets {
-            tasks.remove(at: offset)
+        // Copy the requested positions, then sort them by hand from highest to lowest.
+        for offset in offsets {
+            offsetArray.append(offset)
+        }
+        offsetArray.sort()
+
+        if !offsetArray.isEmpty {
+            for index in stride(from: offsetArray.count - 1, through: 0, by: -1) {
+                let offset: Int = offsetArray[index]
+                if tasks.indices.contains(offset) {
+                    tasks.remove(at: offset)
+                }
+            }
         }
     }
 
     func delete(_ task: DailyTask) {
-        tasks.removeAll { currentTask in
-            currentTask.id == task.id
+        var remainingTasks: [DailyTask] = []
+
+        // Keep every task except the task with the matching ID.
+        for currentTask in tasks {
+            if currentTask.id != task.id {
+                remainingTasks.append(currentTask)
+            }
         }
+
+        tasks = remainingTasks
     }
 
     func clearCompletedTasks() {
-        tasks.removeAll { task in
-            task.isCompleted
+        var remainingTasks: [DailyTask] = []
+
+        // Keep only tasks that are not completed.
+        for task in tasks {
+            if !task.isCompleted {
+                remainingTasks.append(task)
+            }
         }
+
+        tasks = remainingTasks
     }
 
     func resetDefaults() {

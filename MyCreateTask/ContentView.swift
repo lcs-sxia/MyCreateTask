@@ -16,94 +16,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     welcomeHeader
-
-                    LazyVGrid(
-                        columns: Array(
-                            repeating: GridItem(.flexible(), spacing: 12),
-                            count: 3
-                        ),
-                        spacing: 12
-                    ) {
-                        NavigationLink {
-                            LearningAssistantView()
-                        } label: {
-                            dashboardCard(
-                                title: "Learning Assistant",
-                                subtitle: "Math, science & social studies",
-                                icon: "graduationcap.fill",
-                                backgroundColor: .blue.opacity(0.15),
-                                iconColor: .blue,
-                                watermark: "🐼 🦆",
-                                backgroundGradient: LinearGradient(
-                                    colors: [Color.pink.opacity(0.15), Color.blue.opacity(0.15)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .contentShape(Rectangle())
-
-                        NavigationLink {
-                            RecessGameGuideView()
-                        } label: {
-                            dashboardCard(
-                                title: "Recess Game Guide",
-                                subtitle: "Playground games & rules",
-                                icon: "figure.run",
-                                backgroundColor: .purple.opacity(0.15),
-                                iconColor: .purple,
-                                watermark: "🎮 🐶"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .contentShape(Rectangle())
-
-                        NavigationLink {
-                            DailyChecklistView()
-                        } label: {
-                            dashboardCard(
-                                title: "Daily Checklist",
-                                subtitle: "Tasks & reminders",
-                                icon: "checkmark.circle.fill",
-                                backgroundColor: .green.opacity(0.15),
-                                iconColor: .green,
-                                watermark: "⚽️ 🌟"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .contentShape(Rectangle())
-
-                        NavigationLink {
-                            DanceGamesView()
-                        } label: {
-                            dashboardCard(
-                                title: "Dance Games",
-                                subtitle: "Movement & rhythm",
-                                icon: "music.note",
-                                backgroundColor: .yellow.opacity(0.20),
-                                iconColor: .orange,
-                                watermark: "🎵 🐄"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .contentShape(Rectangle())
-
-                        NavigationLink {
-                            ReadingHelperView()
-                        } label: {
-                            dashboardCard(
-                                title: "Reading Helper",
-                                subtitle: "Vocabulary & passages",
-                                icon: "book.pages.fill",
-                                backgroundColor: .orange.opacity(0.15),
-                                iconColor: .orange,
-                                watermark: "🎨"
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .contentShape(Rectangle())
-                    }
+                    dashboardCardsSection
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
@@ -117,6 +30,99 @@ struct ContentView: View {
     }
 
     // MARK: - Functions
+
+    // This section displays the welcome title and star decoration.
+    private var dashboardCardsSection: some View {
+        LazyVGrid(
+            columns: Array(
+                repeating: GridItem(.flexible(), spacing: 12),
+                count: 3
+            ),
+            spacing: 12
+        ) {
+            dashboardLink(
+                destination: LearningAssistantView(),
+                title: "Learning Assistant",
+                subtitle: "Math, science & social studies",
+                icon: "graduationcap.fill",
+                backgroundColor: .blue.opacity(0.15),
+                iconColor: .blue,
+                watermark: "🐼 🦆",
+                backgroundGradient: LinearGradient(
+                    colors: [Color.pink.opacity(0.15), Color.blue.opacity(0.15)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+
+            dashboardLink(
+                destination: RecessGameGuideView(),
+                title: "Recess Game Guide",
+                subtitle: "Playground games & rules",
+                icon: "figure.run",
+                backgroundColor: .purple.opacity(0.15),
+                iconColor: .purple,
+                watermark: "🎮 🐶"
+            )
+
+            dashboardLink(
+                destination: DailyChecklistView(),
+                title: "Daily Checklist",
+                subtitle: "Tasks & reminders",
+                icon: "checkmark.circle.fill",
+                backgroundColor: .green.opacity(0.15),
+                iconColor: .green,
+                watermark: "⚽️ 🌟"
+            )
+
+            dashboardLink(
+                destination: DanceGamesView(),
+                title: "Dance Games",
+                subtitle: "Movement & rhythm",
+                icon: "music.note",
+                backgroundColor: .yellow.opacity(0.20),
+                iconColor: .orange,
+                watermark: "🎵 🐄"
+            )
+
+            dashboardLink(
+                destination: ReadingHelperView(),
+                title: "Reading Helper",
+                subtitle: "Vocabulary & passages",
+                icon: "book.pages.fill",
+                backgroundColor: .orange.opacity(0.15),
+                iconColor: .orange,
+                watermark: "🎨"
+            )
+        }
+    }
+
+    private func dashboardLink<Destination: View>(
+        destination: Destination,
+        title: String,
+        subtitle: String,
+        icon: String,
+        backgroundColor: Color,
+        iconColor: Color,
+        watermark: String,
+        backgroundGradient: LinearGradient? = nil
+    ) -> some View {
+        NavigationLink {
+            destination
+        } label: {
+            dashboardCard(
+                title: title,
+                subtitle: subtitle,
+                icon: icon,
+                backgroundColor: backgroundColor,
+                iconColor: iconColor,
+                watermark: watermark,
+                backgroundGradient: backgroundGradient
+            )
+        }
+        .buttonStyle(.plain)
+        .contentShape(Rectangle())
+    }
 
     private var welcomeHeader: some View {
         HStack(alignment: .center, spacing: 8) {
@@ -150,14 +156,16 @@ struct ContentView: View {
                     .frame(height: 48)
 
                 Text(title)
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(.title3.weight(.bold))
                     .foregroundStyle(.primary)
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(subtitle)
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.primary)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.primary.opacity(0.88))
                     .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .center)
 

@@ -27,18 +27,11 @@ final class DanceGamesViewModel {
     // MARK: - Computed properties
 
     var filteredGames: [DanceGame] {
-        var matchingGames: [DanceGame] = []
-
-        for game in games {
-            let matchesCategory: Bool = selectedCategory == nil || game.category == selectedCategory
-            let matchesEnergy: Bool = selectedEnergy == nil || game.energy == selectedEnergy
-
-            if matchesCategory && matchesEnergy {
-                matchingGames.append(game)
-            }
-        }
-
-        return matchingGames
+        filterDanceGames(
+            games: games,
+            category: selectedCategory,
+            energy: selectedEnergy
+        )
     }
 
     var timerText: String {
@@ -150,6 +143,37 @@ final class DanceGamesViewModel {
                 isTimerRunning = false
             }
         }
+    }
+
+    func filterDanceGames(
+        games: [DanceGame],
+        category: DanceGameCategory?,
+        energy: DanceGameEnergy?
+    ) -> [DanceGame] {
+        var matchingGames: [DanceGame] = []
+
+        // Check each activity against both of the saved filters.
+        for game in games {
+            var matchesCategory: Bool = false
+            if category == nil {
+                matchesCategory = true
+            } else if game.category == category {
+                matchesCategory = true
+            }
+
+            var matchesEnergy: Bool = false
+            if energy == nil {
+                matchesEnergy = true
+            } else if game.energy == energy {
+                matchesEnergy = true
+            }
+
+            if matchesCategory && matchesEnergy {
+                matchingGames.append(game)
+            }
+        }
+
+        return matchingGames
     }
 
     private func game(withID id: UUID) -> DanceGame? {

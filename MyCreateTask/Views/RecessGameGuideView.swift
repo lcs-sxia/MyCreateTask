@@ -5,6 +5,7 @@ struct RecessGameGuideView: View {
     // MARK: - Stored properties
 
     @State private var viewModel = RecessGameViewModel()
+    // This optional value stores the game selected by the random button.
     @State private var randomlySelectedGame: RecessGame?
 
     // MARK: - Computed properties
@@ -12,46 +13,18 @@ struct RecessGameGuideView: View {
     var body: some View {
         @Bindable var viewModel = viewModel
 
-        VStack(alignment: .leading, spacing: 16) {
-            header
-            controlBar
-
-            if viewModel.filteredGames.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "figure.run")
-                        .font(.title)
-                        .foregroundStyle(.secondary)
-
-                    Text("No games match the selected player count and category.")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                LazyVGrid(
-                    columns: [
-                        GridItem(.flexible(), spacing: 14),
-                        GridItem(.flexible(), spacing: 14)
-                    ],
-                    spacing: 14
-                ) {
-                    ForEach(viewModel.filteredGames) { game in
-                        NavigationLink {
-                            RecessGameDetailView(game: game)
-                        } label: {
-                            gameCard(game)
-                        }
-                        .buttonStyle(.plain)
-                        .contentShape(Rectangle())
-                    }
-                }
+        ScrollView(.vertical, showsIndicators: true) {
+            VStack(alignment: .leading, spacing: 16) {
+                header
+                controlBar
+                gamesGridSection
             }
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .padding(.horizontal, 28)
+            .padding(.top, 20)
+            .padding(.bottom, 28)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.horizontal, 28)
-        .padding(.top, 16)
-        .padding(.bottom, 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .fontDesign(.rounded)
         .navigationTitle("Recess Game Guide")
         .navigationDestination(item: $randomlySelectedGame) { game in
@@ -60,6 +33,43 @@ struct RecessGameGuideView: View {
     }
 
     // MARK: - Views
+
+    // This section shows either an empty state or the matching game cards.
+    @ViewBuilder
+    private var gamesGridSection: some View {
+        if viewModel.filteredGames.isEmpty {
+            VStack(spacing: 8) {
+                Image(systemName: "figure.run")
+                    .font(.title)
+                    .foregroundStyle(.secondary)
+
+                Text("No games match the selected player count and category.")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, minHeight: 180)
+        } else {
+            LazyVGrid(
+                columns: [
+                    GridItem(.flexible(), spacing: 14),
+                    GridItem(.flexible(), spacing: 14)
+                ],
+                spacing: 14
+            ) {
+                ForEach(viewModel.filteredGames) { game in
+                    NavigationLink {
+                        RecessGameDetailView(game: game)
+                    } label: {
+                        gameCard(game)
+                    }
+                    .buttonStyle(.plain)
+                    .contentShape(Rectangle())
+                }
+            }
+            .fixedSize(horizontal: false, vertical: true)
+        }
+    }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -75,19 +85,13 @@ struct RecessGameGuideView: View {
     private var controlBar: some View {
         @Bindable var viewModel = viewModel
 
-        return HStack(spacing: 12) {
-            Stepper(
-                "Players: \(viewModel.playerCount)",
-                value: $viewModel.playerCount,
-                in: 1...10
-            )
-            .fixedSize()
+        return HStack(alignment: .bottom, spacing: 12) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Text("Category:")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
 
-            Divider()
-                .frame(height: 28)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
                     ForEach(viewModel.categories, id: \.self) { category in
                         categoryPill(
                             title: category,
@@ -97,15 +101,27 @@ struct RecessGameGuideView: View {
                         }
                     }
                 }
+
+                HStack(spacing: 8) {
+                    Text("Players:")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
+
+                    ForEach(RecessPlayerFilter.allCases) { filter in
+                        playerPill(filter)
+                    }
+                }
             }
 
-            HStack(spacing: 8) {
+            Spacer()
+
+            VStack(alignment: .trailing, spacing: 8) {
                 Text("\(viewModel.filteredGames.count) Games")
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(.secondary)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.blue)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 7)
-                    .background(.secondary.opacity(0.1), in: Capsule())
+                    .background(.blue.opacity(0.12), in: Capsule())
 
                 Button("Random Game", systemImage: "shuffle") {
                     randomlySelectedGame = viewModel.filteredGames.randomElement()
@@ -116,8 +132,6 @@ struct RecessGameGuideView: View {
                 .opacity(viewModel.filteredGames.isEmpty ? 0.5 : 1.0)
             }
         }
-        .padding(8)
-        .background(.quaternary.opacity(0.55), in: RoundedRectangle(cornerRadius: 16))
     }
 
     private func categoryPill(
@@ -127,17 +141,31 @@ struct RecessGameGuideView: View {
     ) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.caption.weight(.semibold))
+                .font(.subheadline.weight(.medium))
                 .foregroundStyle(isSelected ? .white : .primary)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(
-                    isSelected ? Color.accentColor : Color.clear,
-                    in: Capsule()
-                )
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(isSelected ? .purple : Color.primary.opacity(0.06), in: Capsule())
         }
         .buttonStyle(.plain)
         .contentShape(Capsule())
+    }
+
+    private func playerPill(_ filter: RecessPlayerFilter) -> some View {
+        let isSelected = viewModel.selectedPlayerFilter == filter
+
+        return Button {
+            viewModel.selectedPlayerFilter = filter
+        } label: {
+            Text(filter.rawValue)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(isSelected ? .purple : Color.primary.opacity(0.06), in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .clipShape(Capsule())
     }
 
     private func isCategorySelected(_ category: String) -> Bool {
@@ -176,8 +204,8 @@ struct RecessGameGuideView: View {
 
             Text(game.summary)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+                .foregroundStyle(.primary.opacity(0.88))
+                .fixedSize(horizontal: false, vertical: true)
 
             Label(
                 minimumPlayersText(for: game),
@@ -227,18 +255,42 @@ struct RecessGameDetailView: View {
                     text: "\(game.minPlayers)",
                     icon: "person.2"
                 )
+                statBadge(
+                    title: "Duration",
+                    text: "\(game.estimatedDuration) min",
+                    icon: "clock"
+                )
             }
             .frame(height: 112)
 
             HStack(alignment: .top, spacing: 16) {
                 detailSection(title: "Rules", icon: "list.bullet") {
-                    Text(game.rules)
+                    VStack(alignment: .leading, spacing: 10) {
+                        ForEach(Array(game.ruleSteps.enumerated()), id: \.offset) { step in
+                            HStack(alignment: .top, spacing: 10) {
+                                Text("\(step.offset + 1).")
+                                    .font(.body.weight(.bold))
+                                    .foregroundStyle(.primary)
+                                    .frame(width: 24, alignment: .leading)
+
+                                Text(step.element)
+                                    .font(.body)
+                                    .foregroundStyle(.primary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .topLeading)
 
                 VStack(alignment: .leading, spacing: 16) {
                     detailSection(title: "Equipment", icon: "shippingbox") {
                         Text(game.equipment)
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.primary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 7)
+                            .background(.purple.opacity(0.12), in: Capsule())
                     }
 
                     detailSection(
@@ -270,7 +322,8 @@ struct RecessGameDetailView: View {
 
             Text(text)
                 .font(.subheadline)
-                .lineLimit(3)
+                .foregroundStyle(.primary.opacity(0.88))
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(
             maxWidth: .infinity,

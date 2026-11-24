@@ -10,34 +10,11 @@ struct ReadingHelperView: View {
     // MARK: - Computed properties
 
     var body: some View {
-        @Bindable var viewModel = viewModel
-
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Reading Helper")
-                        .font(.largeTitle.weight(.bold))
-
-                    Text("Grade 5–6 vocabulary and comprehension")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-
-                HStack(alignment: .top, spacing: 0) {
-                    Picker("Reading type", selection: $viewModel.selectedType) {
-                        ForEach(ReadingItemType.allCases) { type in
-                            Text(type.rawValue).tag(type)
-                        }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.segmented)
-                }
-
-                if viewModel.selectedType == .vocabulary {
-                    vocabularySection
-                } else {
-                    passageSection
-                }
+                readingHelperHeader
+                readingTypeSelector
+                selectedReadingSection
             }
             .padding(.horizontal, 28)
             .padding(.top, 16)
@@ -51,9 +28,37 @@ struct ReadingHelperView: View {
 
     // MARK: - Views
 
-    private var vocabularySection: some View {
-        @Bindable var viewModel = viewModel
+    // This header identifies the Reading Helper screen.
+    private var readingHelperHeader: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Reading Helper")
+                .font(.largeTitle.weight(.bold))
 
+            Text("Vocabulary and reading comprehension")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    // These pills switch between vocabulary cards and reading passages.
+    private var readingTypeSelector: some View {
+        HStack(spacing: 8) {
+            readingTypePill(title: "Vocabulary", type: .vocabulary)
+            readingTypePill(title: "Reading Passages", type: .passage)
+        }
+    }
+
+    // This section displays the selected reading mode.
+    @ViewBuilder
+    private var selectedReadingSection: some View {
+        if viewModel.selectedType == .vocabulary {
+            vocabularySection
+        } else {
+            passageSection
+        }
+    }
+
+    private var vocabularySection: some View {
         return VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Text("Part of Speech:")
@@ -120,12 +125,48 @@ struct ReadingHelperView: View {
     ) -> some View {
         let isSelected = viewModel.selectedPartOfSpeech == partOfSpeech
 
-        return Button(title) {
-            viewModel.selectedPartOfSpeech = partOfSpeech
+        return capsuleButton(
+            title: title,
+            isSelected: isSelected,
+            selectedColor: .blue
+        ) {
+            if viewModel.selectedPartOfSpeech != partOfSpeech {
+                viewModel.selectedPartOfSpeech = partOfSpeech
+            }
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .tint(isSelected ? .blue : nil)
+    }
+
+    private func readingTypePill(title: String, type: ReadingItemType) -> some View {
+        capsuleButton(
+            title: title,
+            isSelected: viewModel.selectedType == type,
+            selectedColor: .blue
+        ) {
+            if viewModel.selectedType != type {
+                viewModel.selectedType = type
+            }
+        }
+    }
+
+    private func capsuleButton(
+        title: String,
+        isSelected: Bool,
+        selectedColor: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 6)
+                .background(
+                    isSelected ? selectedColor : Color.primary.opacity(0.06),
+                    in: Capsule()
+                )
+        }
+        .buttonStyle(.plain)
+        .clipShape(Capsule())
     }
 
     private func vocabularyCard(_ item: ReadingItem) -> some View {
@@ -135,65 +176,126 @@ struct ReadingHelperView: View {
         let exampleSentence = item.exampleSentence ?? ""
         let synonym = item.synonym ?? ""
 
-        return VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top) {
-                Text(item.title)
-                    .font(.headline.weight(.bold))
-                    .lineLimit(1)
+        return ZStack {
+            ZStack(alignment: .topLeading) {
+                HStack {
+                    Spacer()
+
+                    Button {
+                        viewModel.toggleVocabularyMastered(item)
+                    } label: {
+                        Image(systemName: isMastered ? "checkmark.circle.fill" : "circle")
+                            .font(.title3)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(isMastered ? .green : .secondary)
+                    .help(isMastered ? "Mark not mastered" : "Mark mastered")
+                }
+                .frame(maxWidth: .infinity)
+
+                VStack(alignment: .center, spacing: 8) {
+                    Text(item.title)
+                        .font(.title2.weight(.bold))
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.center)
+
+                    vocabularyPartOfSpeechPill(item.partOfSpeech)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                VStack {
+                    Spacer()
+                    Text("Tap to reveal meaning")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(14)
+            .background(.quaternary.opacity(0.7), in: RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(
+                        isMastered
+                            ? Color.green.opacity(0.5)
+                            : Color.secondary.opacity(0.12),
+                        lineWidth: isMastered ? 1.5 : 1
+                    )
+            )
+            .rotation3DEffect(
+                .degrees(isRevealed ? 180 : 0),
+                axis: (x: 0, y: 1, z: 0)
+            )
+            .opacity(isRevealed ? 0 : 1)
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(item.title)
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(.primary)
+
+                    Spacer()
+
+                    Button {
+                        viewModel.toggleVocabularyMastered(item)
+                    } label: {
+                        Image(systemName: isMastered ? "checkmark.circle.fill" : "circle")
+                            .font(.title3)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(isMastered ? .green : .secondary)
+                    .help(isMastered ? "Mark not mastered" : "Mark mastered")
+                }
+
+                Text(definition)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("Example:")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.secondary)
+
+                Text(exampleSentence)
+                    .font(.caption)
+                    .foregroundStyle(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("Synonym: \(synonym)")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.blue)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(.blue.opacity(0.14), in: Capsule())
 
                 Spacer()
 
-                Button {
-                    viewModel.toggleVocabularyMastered(item)
-                } label: {
-                    Image(systemName: isMastered ? "checkmark.circle.fill" : "circle")
-                        .font(.title3)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(isMastered ? .green : .secondary)
-                .help(isMastered ? "Mark not mastered" : "Mark mastered")
+                Text("Tap to flip back")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
             }
-
-            vocabularyPartOfSpeechPill(item.partOfSpeech)
-
-            Text(definition)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(3)
-
-            Text(isRevealed ? "Show less" : "Tap for example & synonym")
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(isRevealed ? .blue : .secondary)
-
-            if isRevealed {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(exampleSentence)
-                        .font(.caption)
-
-                    Text("Synonym: \(synonym)")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(.blue)
-                }
-                vocabularyMasteryButton(item: item, isMastered: isMastered)
-            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding(14)
+            .background(.blue.opacity(0.10), in: RoundedRectangle(cornerRadius: 16))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(.blue.opacity(0.25), lineWidth: 1)
+            )
+            .rotation3DEffect(
+                .degrees(isRevealed ? 0 : -180),
+                axis: (x: 0, y: 1, z: 0)
+            )
+            .opacity(isRevealed ? 1 : 0)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(16)
-        .background(.quaternary.opacity(0.7), in: RoundedRectangle(cornerRadius: 16))
-        .overlay {
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(
-                    isMastered
-                        ? Color.green.opacity(0.5)
-                        : isRevealed
-                            ? Color.blue.opacity(0.45)
-                            : Color.secondary.opacity(0.12),
-                    lineWidth: isRevealed ? 1.5 : 1
-                )
-        }
+        .frame(height: 210)
+        .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .onTapGesture {
-            viewModel.toggleVocabularyReveal(item)
+            withAnimation(.easeInOut(duration: 0.35)) {
+                viewModel.toggleVocabularyReveal(item)
+            }
         }
     }
 
@@ -263,27 +365,51 @@ struct ReadingHelperView: View {
     }
 
     private var passageSection: some View {
-        @Bindable var viewModel = viewModel
-
         return VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
-                        passageCategoryPill(title: "All", category: nil)
-                        passageCategoryPill(title: "Canadian Nature", category: "Canadian Nature")
-                        passageCategoryPill(title: "Science & Inquiry", category: "Science & Inquiry")
-                        passageCategoryPill(title: "Community & History", category: "Community & History")
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Text("Category:")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            passageCategoryPill(title: "All", category: nil)
+                            passageCategoryPill(title: "Canadian Nature", category: "Canadian Nature")
+                            passageCategoryPill(title: "Science & Inquiry", category: "Science & Inquiry")
+                            passageCategoryPill(title: "Community & History", category: "Community & History")
+                        }
+                    }
+
+                    Spacer()
+
+                    Text("\(viewModel.passageItems.count) Passages")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.blue)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(.blue.opacity(0.12), in: Capsule())
+                }
+
+                HStack(spacing: 8) {
+                    Text("Level:")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
+
+                    ForEach(ReadingLevelFilter.allCases) { level in
+                        passageLevelPill(level)
                     }
                 }
 
-                Spacer()
+                HStack(spacing: 8) {
+                    Text("Time:")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
 
-                Text("\(viewModel.passageItems.count) Passages")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.blue)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .background(.blue.opacity(0.12), in: Capsule())
+                    ForEach(ReadingTimeFilter.allCases) { time in
+                        passageTimePill(time)
+                    }
+                }
             }
 
             LazyVGrid(
@@ -312,12 +438,52 @@ struct ReadingHelperView: View {
     ) -> some View {
         let isSelected = viewModel.selectedPassageCategory == category
 
-        return Button(title) {
-            viewModel.selectedPassageCategory = category
+        return capsuleButton(
+            title: title,
+            isSelected: isSelected,
+            selectedColor: .orange
+        ) {
+            if viewModel.selectedPassageCategory != category {
+                viewModel.selectedPassageCategory = category
+            }
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .tint(isSelected ? .blue : nil)
+    }
+
+    private func passageLevelPill(_ level: ReadingLevelFilter) -> some View {
+        let isSelected = viewModel.selectedPassageLevel == level
+
+        return capsuleButton(
+            title: level.rawValue,
+            isSelected: isSelected,
+            selectedColor: .purple
+        ) {
+            viewModel.selectedPassageLevel = level
+        }
+    }
+
+    private func passageTimePill(_ time: ReadingTimeFilter) -> some View {
+        let isSelected = viewModel.selectedPassageTime == time
+
+        return capsuleButton(
+            title: time.rawValue,
+            isSelected: isSelected,
+            selectedColor: .orange
+        ) {
+            viewModel.selectedPassageTime = time
+        }
+    }
+
+    private func readingLevelLabel(for passage: ReadingItem) -> String {
+        switch passage.readingLevel {
+        case 1:
+            return "Level 1 • Easy"
+        case 2:
+            return "Level 2 • Medium"
+        case 3:
+            return "Level 3 • Advanced"
+        default:
+            return "Level 1 • Easy"
+        }
     }
 
     private func passageCard(_ passage: ReadingItem) -> some View {
@@ -333,24 +499,39 @@ struct ReadingHelperView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Text(passage.category ?? "")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.blue)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 5)
-                .background(.blue.opacity(0.14), in: Capsule())
+            HStack(spacing: 6) {
+                Text(passage.category ?? "")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.blue)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(.blue.opacity(0.14), in: Capsule())
+
+                Text(readingLevelLabel(for: passage))
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.purple)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(.purple.opacity(0.14), in: Capsule())
+            }
 
             Text(passage.summary ?? "")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+                .foregroundStyle(.primary.opacity(0.85))
+                .fixedSize(horizontal: false, vertical: true)
 
             HStack(spacing: 10) {
-                Label("\(passage.readingTime ?? 0) min read", systemImage: "clock")
+                Label("\(passage.readingTime ?? 0) min read", systemImage: "clock.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(.orange.opacity(0.14), in: Capsule())
+
                 Label("\(passage.wordCount ?? 0) words", systemImage: "text.alignleft")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
             }
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 128, alignment: .topLeading)
         .padding(12)
@@ -386,6 +567,19 @@ struct ReadingPassageDetailView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
+    private func readingLevelLabel(for passage: ReadingItem) -> String {
+        switch passage.readingLevel {
+        case 1:
+            return "Level 1 • Easy"
+        case 2:
+            return "Level 2 • Medium"
+        case 3:
+            return "Level 3 • Advanced"
+        default:
+            return "Level 1 • Easy"
+        }
+    }
+
     // MARK: - Computed properties
 
     var body: some View {
@@ -398,6 +592,22 @@ struct ReadingPassageDetailView: View {
                     Text(passage.category ?? "")
                         .font(.headline)
                         .foregroundStyle(.blue)
+
+                    HStack(spacing: 6) {
+                        Text(readingLevelLabel(for: passage))
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.purple)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(.purple.opacity(0.14), in: Capsule())
+
+                        Label("\(passage.readingTime ?? 0) min read", systemImage: "clock.fill")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(.orange)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(.orange.opacity(0.14), in: Capsule())
+                    }
 
                     Text(passage.summary ?? "")
                         .font(.title3)
@@ -441,7 +651,8 @@ struct ReadingPassageDetailView: View {
             ForEach(Array(passage.passageParagraphs.enumerated()), id: \.offset) { paragraph in
                 Text(paragraph.element)
                     .font(.body)
-                    .lineSpacing(5)
+                    .lineSpacing(6)
+                    .foregroundStyle(.primary)
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -454,8 +665,9 @@ struct ReadingPassageDetailView: View {
                         Text(term.term)
                             .font(.subheadline.weight(.bold))
                         Text(term.meaning)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.subheadline)
+                            .foregroundStyle(.primary.opacity(0.88))
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
@@ -477,7 +689,9 @@ struct ReadingPassageDetailView: View {
             ForEach(passage.questions) { question in
                 VStack(alignment: .leading, spacing: 7) {
                     Text(question.prompt)
-                        .font(.subheadline.weight(.bold))
+                        .font(.body.weight(.bold))
+                        .foregroundStyle(.primary)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     ForEach(Array(question.options.enumerated()), id: \.offset) { option in
                         Button {
@@ -488,8 +702,9 @@ struct ReadingPassageDetailView: View {
                                     .multilineTextAlignment(.leading)
                                 Spacer()
                             }
-                            .font(.caption)
+                            .font(.subheadline)
                             .frame(maxWidth: .infinity)
+                            .fixedSize(horizontal: false, vertical: true)
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
@@ -501,8 +716,9 @@ struct ReadingPassageDetailView: View {
                             Image(systemName: selectedIndex == question.correctOptionIndex ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
                                 .foregroundStyle(selectedIndex == question.correctOptionIndex ? .green : .orange)
                             Text(question.explanation)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(.subheadline)
+                                .foregroundStyle(.primary.opacity(0.88))
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         .padding(.top, 2)
                     }

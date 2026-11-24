@@ -4,6 +4,8 @@ enum LearningSubject: String, CaseIterable, Identifiable {
     case math = "Math"
     case science = "Science"
     case socialStudies = "Social Studies"
+    case english = "English (Grammar)"
+    case geography = "Geography"
 
     var id: String {
         rawValue
@@ -17,6 +19,10 @@ enum LearningSubject: String, CaseIterable, Identifiable {
             "atom"
         case .socialStudies:
             "building.columns"
+        case .english:
+            "pencil.and.outline"
+        case .geography:
+            "map"
         }
     }
 }
@@ -139,6 +145,46 @@ extension StudyConcept {
             subject: .socialStudies,
             title: "Fur Trade & Early Canadian History",
             summary: "The fur trade connected Indigenous communities, European newcomers, and growing Canadian settlements."
+        ),
+        StudyConcept(
+            subject: .english,
+            title: "Parts of Speech",
+            summary: "Nouns name people, places, or things; verbs show action or being; adjectives describe nouns."
+        ),
+        StudyConcept(
+            subject: .english,
+            title: "Sentence Types",
+            summary: "Declarative sentences make statements, and interrogative sentences ask questions."
+        ),
+        StudyConcept(
+            subject: .english,
+            title: "Prefixes & Suffixes",
+            summary: "Word parts can change a base word's meaning or grammatical form."
+        ),
+        StudyConcept(
+            subject: .english,
+            title: "Subject–Verb Agreement",
+            summary: "The verb in a sentence should match whether its subject is singular or plural."
+        ),
+        StudyConcept(
+            subject: .geography,
+            title: "Map Features",
+            summary: "Maps use symbols, a legend, a scale, and directions to communicate places accurately."
+        ),
+        StudyConcept(
+            subject: .geography,
+            title: "Natural Resources",
+            summary: "Renewable and non-renewable resources support people and industries in different ways."
+        ),
+        StudyConcept(
+            subject: .geography,
+            title: "Human & Natural Systems",
+            summary: "Human activities and natural systems interact and can change communities and environments."
+        ),
+        StudyConcept(
+            subject: .geography,
+            title: "Canada's Regions",
+            summary: "Ontario includes varied natural and human features shaped by land, water, climate, and settlement."
         )
     ]
 }
@@ -361,6 +407,62 @@ extension LearningQuestion {
             ],
             correctAnswer: "Respecting shared spaces",
             hint: "Civic responsibilities help communities stay safe, fair, and welcoming."
+        ),
+        LearningQuestion(
+            subject: .english,
+            questionText: "Which word is an adjective in: “The curious students read an informative article”?",
+            options: ["students", "read", "curious", "article"],
+            correctAnswer: "curious",
+            hint: "An adjective describes or adds detail to a noun."
+        ),
+        LearningQuestion(
+            subject: .english,
+            questionText: "Which sentence uses the correct subject–verb agreement?",
+            options: ["The students is ready.", "The class are ready.", "The students are ready.", "The student are ready."],
+            correctAnswer: "The students are ready.",
+            hint: "A plural subject needs a plural verb."
+        ),
+        LearningQuestion(
+            subject: .english,
+            questionText: "Which punctuation mark ends an interrogative sentence?",
+            options: ["A period", "A comma", "A question mark", "An exclamation mark"],
+            correctAnswer: "A question mark",
+            hint: "Interrogative sentences ask questions."
+        ),
+        LearningQuestion(
+            subject: .english,
+            questionText: "What does the prefix “un-” usually mean in “uncertain”?",
+            options: ["Before", "Not or opposite", "Again", "Very large"],
+            correctAnswer: "Not or opposite",
+            hint: "Look for how the prefix changes the meaning of “certain.”"
+        ),
+        LearningQuestion(
+            subject: .geography,
+            questionText: "Which map feature explains the meaning of symbols on a map?",
+            options: ["The title", "The legend", "The scale", "The border"],
+            correctAnswer: "The legend",
+            hint: "A legend connects map symbols to real features."
+        ),
+        LearningQuestion(
+            subject: .geography,
+            questionText: "Which is a renewable natural resource?",
+            options: ["Coal", "Oil", "Solar energy", "Natural gas"],
+            correctAnswer: "Solar energy",
+            hint: "Renewable resources can be replenished naturally in a short time."
+        ),
+        LearningQuestion(
+            subject: .geography,
+            questionText: "What does a map scale help readers determine?",
+            options: ["Real distance", "Population age", "Weather temperature", "Plant names"],
+            correctAnswer: "Real distance",
+            hint: "Scale compares distance on the map with distance on the ground."
+        ),
+        LearningQuestion(
+            subject: .geography,
+            questionText: "Which example shows interaction between human and natural systems?",
+            options: ["A rock sitting in a field", "A dam changing river flow", "A cloud passing overhead", "A star in the night sky"],
+            correctAnswer: "A dam changing river flow",
+            hint: "Look for a human-built feature that changes a natural system."
         ),
     ]
 }
